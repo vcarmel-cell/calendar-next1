@@ -367,7 +367,11 @@
     </div>
     <div class="form-group">
       <label>הערות</label>
-      <textarea id="f-notes" placeholder="כתובת, טלפון, פרטים נוספים..."></textarea>
+      <textarea id="f-notes" placeholder="כתובת, פרטים נוספים..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>סיכום פגישה</label>
+      <textarea id="f-summary" placeholder="מה סוכם, צעדים הבאים..."></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-save" id="btn-save">שמירה</button>
@@ -793,7 +797,8 @@ function openNew(designerId, startTime, dateStr) {
   setTime("f-start", startTime);
   const [h, m] = startTime.split(":").map(Number);
   setTime("f-end", `${String(Math.min(h+1,END_HOUR)).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
-  document.getElementById("f-notes").value = "";
+  document.getElementById("f-notes").value    = "";
+  document.getElementById("f-summary").value  = "";
   document.getElementById("btn-delete").style.display = "none";
   updateWhatsAppBtn();
   document.getElementById("modal-overlay").classList.add("open");
@@ -810,6 +815,7 @@ function openEdit(apt) {
   setTime("f-start", apt.startTime);
   setTime("f-end",   apt.endTime);
   document.getElementById("f-notes").value    = apt.notes || "";
+  document.getElementById("f-summary").value  = apt.summary || "";
   document.getElementById("btn-delete").style.display = "block";
   updateWhatsAppBtn();
   document.getElementById("modal-overlay").classList.add("open");
@@ -855,6 +861,7 @@ async function saveApt() {
     startTime:  getTime("f-start"),
     endTime:    getTime("f-end"),
     notes:      document.getElementById("f-notes").value.trim(),
+    summary:    document.getElementById("f-summary").value.trim(),
   };
   const isNew = !editingId;
   try {

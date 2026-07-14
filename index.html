@@ -277,6 +277,20 @@
     .btn-add-designer:hover { border-color: var(--gold); color: var(--gold); }
     .settings-note { font-size: .78rem; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 
+    /* ── SEARCH RESULTS ────────────────────────────── */
+    .search-result {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 9px; cursor: pointer;
+      border: 1px solid var(--border); margin-bottom: 8px;
+      background: white; transition: background .15s;
+    }
+    .search-result:hover { background: var(--hover-bg); }
+    .search-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .search-info { flex: 1; }
+    .search-client { font-weight: 700; font-size: .95rem; color: var(--text); }
+    .search-meta { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+    .search-empty { text-align: center; color: var(--muted); padding: 24px; font-size: .9rem; }
+
     /* ── MOBILE ────────────────────────────────────── */
     @media (max-width: 600px) {
       .header-brand { font-size: .85rem; }
@@ -319,6 +333,7 @@
       <label>סינון:</label>
       <select id="designer-filter"></select>
     </div>
+    <button class="btn-icon" id="btn-search" title="חיפוש לקוח">🔍</button>
     <button class="btn-icon" id="btn-settings" title="הגדרות">⚙️</button>
     <button class="btn-logout" id="btn-logout">יציאה</button>
   </div>
@@ -380,6 +395,21 @@
     <button class="btn-whatsapp" id="btn-whatsapp" style="display:none" onclick="sendWhatsApp()">
       <span>📲</span> שלח תזכורת WhatsApp
     </button>
+  </div>
+</div>
+
+<!-- ── SEARCH MODAL ───────────────────────────────── -->
+<div class="modal-overlay" id="search-overlay">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <h3>🔍 חיפוש לקוח</h3>
+      <button class="btn-close" id="search-close">×</button>
+    </div>
+    <div class="form-group" style="display:flex;gap:8px;margin-bottom:8px">
+      <input type="text" id="search-input" placeholder="שם לקוח או מספר טלפון..." style="flex:1">
+      <button class="btn-save" style="flex:0;padding:9px 16px;white-space:nowrap" onclick="doSearch()">חפש</button>
+    </div>
+    <div id="search-results"></div>
   </div>
 </div>
 
@@ -542,6 +572,13 @@ function bindEvents() {
   });
   document.getElementById("btn-save").addEventListener("click", saveApt);
   document.getElementById("btn-delete").addEventListener("click", deleteApt);
+  // Search
+  document.getElementById("btn-search").addEventListener("click", openSearch);
+  document.getElementById("search-close").addEventListener("click", closeSearch);
+  document.getElementById("search-overlay").addEventListener("click", e => {
+    if (e.target === document.getElementById("search-overlay")) closeSearch();
+  });
+  document.getElementById("search-input").addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
   // Admin password modal
   document.getElementById("btn-settings").addEventListener("click", openAdminPrompt);
   document.getElementById("admin-pwd-confirm").addEventListener("click", confirmAdminPwd);
@@ -937,6 +974,88 @@ function setTime(prefix, timeStr) {
     Math.abs(parseInt(cur)-parseInt(m)) < Math.abs(parseInt(prev)-parseInt(m)) ? cur : prev);
   document.getElementById(prefix+"-m").value = rounded;
 }
+
+/* ─── Search ─────────────────────────────────────── */
+function openSearch() {
+  document.getElementById("search-input").value = "";
+  document.getElementById("search-results").innerHTML = "";
+  document.getElementById("search-overlay").classList.add("open");
+  setTimeout(() => document.getElementById("search-input").focus(), 80);
+}
+function closeSearch() { document.getElementById("search-overlay").classList.remove("open"); }
+
+window.doSearch = async function() {
+  const term = document.getElementById("search-input").value.trim();
+  if (!term) return;
+  const resultsEl = document.getElementById("search-results");
+  resultsEl.innerHTML = `<div class="search-empty">מחפש...</div>`;
+
+  const cleanPhone = term.replace(/\D/g, "");
+  const isPhone    = cleanPhone.length >= 7;
+
+  // Query by phone or by name prefix
+  const { getDocs: gd, query: q2, collection: col2, where: wh2, orderBy: ob } = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js");
+
+  let results = [];
+
+  if (isPhone) {
+    const snap = await gd(q2(col2(db, "appointments"), wh2("phone", "==", term.replace(/-/g,""))));
+    const snap2 = await gd(q2(col2(db, "appointments"), wh2("phone", "==", cleanPhone)));
+    const seen = new Set();
+    [...snap.docs, ...snap2.docs].forEach(d => {
+      if (!seen.has(d.id)) { seen.add(d.id); results.push({ id: d.id, ...d.data() }); }
+    });
+  }
+
+  // Also search by name (prefix)
+  const nameTerm = term;
+  const nameSnap = await gd(q2(col2(db, "appointments"),
+    wh2("clientName", ">=", nameTerm),
+    wh2("clientName", "<=", nameTerm + "")));
+  nameSnap.docs.forEach(d => {
+    if (!results.find(r => r.id === d.id)) results.push({ id: d.id, ...d.data() });
+  });
+
+  // Sort by date desc
+  results.sort((a, b) => b.date.localeCompare(a.date));
+
+  if (results.length === 0) {
+    resultsEl.innerHTML = `<div class="search-empty">לא נמצאו פגישות</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = "";
+  results.forEach(apt => {
+    const designer = DESIGNERS.find(d => d.id === apt.designerId);
+    const parts    = apt.date.split("-");
+    const dateObj  = new Date(+parts[0], +parts[1]-1, +parts[2]);
+    const days     = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+    const months   = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+    const dateStr  = `יום ${days[dateObj.getDay()]}, ${dateObj.getDate()} ב${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+    const el = document.createElement("div");
+    el.className = "search-result";
+    el.innerHTML = `
+      <div class="search-dot" style="background:${designer?.color || "#ccc"}"></div>
+      <div class="search-info">
+        <div class="search-client">${apt.clientName}${apt.phone ? ` · ${apt.phone}` : ""}</div>
+        <div class="search-meta">${dateStr} · ${apt.startTime}–${apt.endTime} · ${designer?.name || ""}</div>
+        ${apt.summary ? `<div class="search-meta" style="color:var(--primary);margin-top:2px">✓ יש סיכום</div>` : ""}
+      </div>
+      <span style="color:var(--muted);font-size:.8rem">עריכה ›</span>
+    `;
+    el.addEventListener("click", () => {
+      closeSearch();
+      // Navigate to the appointment's date
+      currentDate = dateObj;
+      renderDateDisplay();
+      rebuildAndSubscribe();
+      // Open edit modal after short delay for the view to load
+      setTimeout(() => openEdit(apt), 400);
+    });
+    resultsEl.appendChild(el);
+  });
+};
 
 /* ─── Admin password prompt ──────────────────────── */
 function openAdminPrompt() {

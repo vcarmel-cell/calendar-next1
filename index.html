@@ -362,7 +362,7 @@
     </div>
     <div class="form-group">
       <label>טלפון לקוח</label>
-      <input type="tel" id="f-phone" placeholder="05X-XXXXXXX" dir="ltr" style="text-align:right" oninput="updateWhatsAppBtn()">
+      <input type="tel" id="f-phone" placeholder="05XXXXXXXXX" dir="ltr" style="text-align:right" oninput="this.value=this.value.replace(/\D/g,'');updateWhatsAppBtn()">
     </div>
     <div class="time-row">
       <div class="form-group">

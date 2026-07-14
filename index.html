@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>אביה עיצובים בעץ - יומן פגישות</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     :root {
       --bg:        #F5EDE0;
@@ -424,6 +425,12 @@ import { getFirestore, collection, doc, query, where,
    ═══════════════════════════════════════════════════ */
 const APP_PASSWORD   = "1234";   // ← סיסמת כניסה לאפליקציה
 const ADMIN_PASSWORD = "1234";   // ← סיסמת כניסה להגדרות
+
+// ─── EmailJS — מלא את הפרטים אחרי ההרשמה ───────────
+const EMAILJS_PUBLIC_KEY  = "";   // ← Public Key מ-EmailJS
+const EMAILJS_SERVICE_ID  = "";   // ← Service ID
+const EMAILJS_TEMPLATE_ID = "";   // ← Template ID
+// ─────────────────────────────────────────────────────
 
 const DEFAULT_DESIGNERS = [
   { id: "1", name: "מעצבת 1", color: "#8B4513" },
@@ -849,11 +856,37 @@ async function saveApt() {
     endTime:    getTime("f-end"),
     notes:      document.getElementById("f-notes").value.trim(),
   };
+  const isNew = !editingId;
   try {
     if (editingId) await updateDoc(doc(db, "appointments", editingId), data);
     else           await addDoc(collection(db, "appointments"), data);
+    if (isNew) sendEmailNotification(data);
     closeModal();
   } catch (err) { alert("שגיאה בשמירה."); console.error(err); }
+}
+
+function sendEmailNotification(data) {
+  if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) return;
+  const designer = DESIGNERS.find(d => d.id === data.designerId);
+  if (!designer?.email) return;
+
+  const parts   = data.date.split("-");
+  const dateObj = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  const days    = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+  const months  = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  const dateStr = `יום ${days[dateObj.getDay()]}, ${dateObj.getDate()} ב${months[dateObj.getMonth()]}`;
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email:     designer.email,
+    to_name:      designer.name,
+    client_name:  data.clientName,
+    client_phone: data.phone || "לא צוין",
+    date:         dateStr,
+    start_time:   data.startTime,
+    end_time:     data.endTime,
+    notes:        data.notes || "—",
+  }).catch(err => console.error("EmailJS error:", err));
 }
 
 async function deleteApt() {
@@ -940,15 +973,21 @@ function appendDesignerRow(list, d, i) {
   const colorInput = document.createElement("input"); colorInput.type = "color"; colorInput.className = "color-picker-hidden"; colorInput.value = d.color;
   colorInput.addEventListener("input", e => { colorBtn.style.background = e.target.value; updateDraft(list, i, "color", e.target.value); });
   colorBtn.addEventListener("click", () => colorInput.click());
-  const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = d.name; nameInput.placeholder = "שם מעצבת";
+  const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = d.name; nameInput.placeholder = "שם";
   nameInput.addEventListener("input", e => updateDraft(list, i, "name", e.target.value));
+  const emailInput = document.createElement("input"); emailInput.type = "email"; emailInput.value = d.email || ""; emailInput.placeholder = "מייל";
+  emailInput.style.cssText = "flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;direction:ltr;margin-top:4px";
+  emailInput.addEventListener("input", e => updateDraft(list, i, "email", e.target.value));
   const removeBtn = document.createElement("button"); removeBtn.className = "btn-remove-designer"; removeBtn.innerHTML = "×";
   removeBtn.addEventListener("click", () => {
     let draft = JSON.parse(list.dataset.draft); draft.splice(i, 1);
     list.dataset.draft = JSON.stringify(draft); list.innerHTML = "";
     draft.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
   });
-  row.appendChild(colorBtn); row.appendChild(colorInput); row.appendChild(nameInput); row.appendChild(removeBtn);
+  const nameWrap = document.createElement("div");
+  nameWrap.style.cssText = "flex:1;display:flex;flex-direction:column;gap:0";
+  nameWrap.appendChild(nameInput); nameWrap.appendChild(emailInput);
+  row.appendChild(colorBtn); row.appendChild(colorInput); row.appendChild(nameWrap); row.appendChild(removeBtn);
   list.appendChild(row);
 }
 

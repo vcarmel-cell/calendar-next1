@@ -317,6 +317,23 @@
   </div>
 </div>
 
+<!-- ── ADMIN PASSWORD MODAL ───────────────────────── -->
+<div class="modal-overlay" id="admin-pwd-overlay">
+  <div class="modal" style="width:300px;text-align:center">
+    <div class="modal-header" style="justify-content:center;border-bottom:none;margin-bottom:8px">
+      <h3>🔒 סיסמת מנהל</h3>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <input type="password" id="admin-pwd-input" placeholder="הכנס סיסמה" style="text-align:center;direction:ltr">
+    </div>
+    <div class="login-error" id="admin-pwd-error" style="margin-bottom:10px">סיסמה שגויה</div>
+    <div class="modal-actions">
+      <button class="btn-save" id="admin-pwd-confirm">כניסה</button>
+      <button class="btn-delete" id="admin-pwd-cancel">ביטול</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── SETTINGS MODAL ─────────────────────────────── -->
 <div class="modal-overlay" id="settings-overlay">
   <div class="modal settings-modal">
@@ -344,7 +361,8 @@ import { getFirestore, collection, doc, query, where,
 /* ═══════════════════════════════════════════════════
    ⚙️  שנה כאן רק את הסיסמה
    ═══════════════════════════════════════════════════ */
-const APP_PASSWORD = "1234";
+const APP_PASSWORD   = "1234";   // ← סיסמת כניסה לאפליקציה
+const ADMIN_PASSWORD = "admin";  // ← סיסמת כניסה להגדרות
 
 const DEFAULT_DESIGNERS = [
   { id: "1", name: "מעצבת 1", color: "#7c3aed" },
@@ -451,8 +469,12 @@ function bindEvents() {
   });
   document.getElementById("btn-save").addEventListener("click", saveApt);
   document.getElementById("btn-delete").addEventListener("click", deleteApt);
+  // Admin password modal
+  document.getElementById("btn-settings").addEventListener("click", openAdminPrompt);
+  document.getElementById("admin-pwd-confirm").addEventListener("click", confirmAdminPwd);
+  document.getElementById("admin-pwd-cancel").addEventListener("click", closeAdminPrompt);
+  document.getElementById("admin-pwd-input").addEventListener("keydown", e => { if (e.key === "Enter") confirmAdminPwd(); });
   // Settings modal
-  document.getElementById("btn-settings").addEventListener("click", openSettings);
   document.getElementById("settings-close").addEventListener("click", closeSettings);
   document.getElementById("settings-overlay").addEventListener("click", e => {
     if (e.target === document.getElementById("settings-overlay")) closeSettings();
@@ -746,6 +768,28 @@ async function deleteApt() {
   if (!editingId || !confirm("למחוק את הפגישה?")) return;
   try { await deleteDoc(doc(db, "appointments", editingId)); closeModal(); }
   catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+}
+
+/* ─── Admin password prompt ──────────────────────── */
+function openAdminPrompt() {
+  document.getElementById("admin-pwd-input").value = "";
+  document.getElementById("admin-pwd-error").style.display = "none";
+  document.getElementById("admin-pwd-overlay").classList.add("open");
+  setTimeout(() => document.getElementById("admin-pwd-input").focus(), 80);
+}
+function closeAdminPrompt() {
+  document.getElementById("admin-pwd-overlay").classList.remove("open");
+}
+function confirmAdminPwd() {
+  const val = document.getElementById("admin-pwd-input").value;
+  if (val === ADMIN_PASSWORD) {
+    closeAdminPrompt();
+    openSettings();
+  } else {
+    document.getElementById("admin-pwd-error").style.display = "block";
+    document.getElementById("admin-pwd-input").value = "";
+    document.getElementById("admin-pwd-input").focus();
+  }
 }
 
 /* ─── Settings modal ─────────────────────────────── */

@@ -342,11 +342,17 @@
     <div class="time-row">
       <div class="form-group">
         <label>שעת התחלה</label>
-        <input type="time" id="f-start" value="09:00" step="900">
+        <div style="display:flex;gap:4px">
+          <select id="f-start-h" style="flex:1"></select>
+          <select id="f-start-m" style="flex:1"></select>
+        </div>
       </div>
       <div class="form-group">
         <label>שעת סיום</label>
-        <input type="time" id="f-end" value="10:00" step="900">
+        <div style="display:flex;gap:4px">
+          <select id="f-end-h" style="flex:1"></select>
+          <select id="f-end-m" style="flex:1"></select>
+        </div>
       </div>
     </div>
     <div class="form-group">
@@ -483,6 +489,7 @@ onAuthStateChanged(auth, user => {
 /* ─── Init ───────────────────────────────────────── */
 async function initApp() {
   await loadDesigners();
+  buildTimeSelects();
   buildTimeGutter();
   buildFilterSelect();
   buildModalDesigners();
@@ -764,9 +771,9 @@ function openNew(designerId, startTime, dateStr) {
   document.getElementById("f-designer").value = designerId;
   document.getElementById("f-client").value   = "";
   document.getElementById("f-phone").value    = "";
-  document.getElementById("f-start").value    = startTime;
+  setTime("f-start", startTime);
   const [h, m] = startTime.split(":").map(Number);
-  document.getElementById("f-end").value = `${String(Math.min(h+1,END_HOUR)).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  setTime("f-end", `${String(Math.min(h+1,END_HOUR)).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
   document.getElementById("f-notes").value = "";
   document.getElementById("btn-delete").style.display = "none";
   document.getElementById("modal-overlay").classList.add("open");
@@ -780,8 +787,8 @@ function openEdit(apt) {
   document.getElementById("f-designer").value = apt.designerId;
   document.getElementById("f-client").value   = apt.clientName || "";
   document.getElementById("f-phone").value    = apt.phone || "";
-  document.getElementById("f-start").value    = apt.startTime;
-  document.getElementById("f-end").value      = apt.endTime;
+  setTime("f-start", apt.startTime);
+  setTime("f-end",   apt.endTime);
   document.getElementById("f-notes").value    = apt.notes || "";
   document.getElementById("btn-delete").style.display = "block";
   document.getElementById("modal-overlay").classList.add("open");
@@ -797,8 +804,8 @@ async function saveApt() {
     designerId: document.getElementById("f-designer").value,
     clientName: client,
     phone:      document.getElementById("f-phone").value.trim(),
-    startTime:  document.getElementById("f-start").value,
-    endTime:    document.getElementById("f-end").value,
+    startTime:  getTime("f-start"),
+    endTime:    getTime("f-end"),
     notes:      document.getElementById("f-notes").value.trim(),
   };
   try {
@@ -812,6 +819,42 @@ async function deleteApt() {
   if (!editingId || !confirm("למחוק את הפגישה?")) return;
   try { await deleteDoc(doc(db, "appointments", editingId)); closeModal(); }
   catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+}
+
+/* ─── Time selects ───────────────────────────────── */
+function buildTimeSelects() {
+  ["f-start-h","f-end-h"].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = "";
+    for (let h = START_HOUR; h <= END_HOUR; h++) {
+      const o = document.createElement("option");
+      o.value = String(h).padStart(2,"0");
+      o.textContent = String(h).padStart(2,"0");
+      sel.appendChild(o);
+    }
+  });
+  ["f-start-m","f-end-m"].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = "";
+    ["00","15","30","45"].forEach(m => {
+      const o = document.createElement("option");
+      o.value = m; o.textContent = m; sel.appendChild(o);
+    });
+  });
+}
+
+function getTime(prefix) {
+  return `${document.getElementById(prefix+"-h").value}:${document.getElementById(prefix+"-m").value}`;
+}
+
+function setTime(prefix, timeStr) {
+  if (!timeStr) return;
+  const [h, m] = timeStr.split(":");
+  document.getElementById(prefix+"-h").value = h;
+  const mins = ["00","15","30","45"];
+  const rounded = mins.reduce((prev, cur) =>
+    Math.abs(parseInt(cur)-parseInt(m)) < Math.abs(parseInt(prev)-parseInt(m)) ? cur : prev);
+  document.getElementById(prefix+"-m").value = rounded;
 }
 
 /* ─── Admin password prompt ──────────────────────── */

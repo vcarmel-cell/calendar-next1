@@ -830,7 +830,7 @@ window.sendWhatsApp = function() {
   const months = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
   const dateStr = `יום ${days[dateObj.getDay()]}, ${dateObj.getDate()} ב${months[dateObj.getMonth()]}`;
 
-  const msg = `שלום ${client} 😊\n\nתזכורת לפגישה שלך:\n📅 ${dateStr}\n⏰ ${start} - ${end}\n👤 עם ${designer?.name || ""}\n\nאביה עיצובים בעץ`;
+  const msg = `שלום ${client} :)\n\nתזכורת לפגישה שלך:\n* ${dateStr}\n* שעה: ${start} - ${end}\n* עם ${designer?.name || ""}\n\nאביה עיצובים בעץ`;
 
   // Israeli phone: 05X → 9725X
   const intlPhone = phone.startsWith("0") ? "972" + phone.slice(1) : phone;

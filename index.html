@@ -488,8 +488,8 @@ function setView(mode) {
   viewMode = mode;
   document.getElementById("vt-day").classList.toggle("active", mode === "day");
   document.getElementById("vt-week").classList.toggle("active", mode === "week");
-  document.getElementById("designers-grid").style.display = mode === "day"  ? "flex" : "none";
-  document.getElementById("week-grid").style.display      = mode === "week" ? "flex" : "none";
+  document.getElementById("designers-grid").style.display = mode === "day"  ? "" : "none";
+  document.getElementById("week-grid").style.display      = mode === "week" ? "" : "none";
   renderDateDisplay();
   rebuildAndSubscribe();
 }
@@ -647,14 +647,12 @@ function buildWeekGrid() {
 
 function subscribeWeek() {
   if (unsubscribe) unsubscribe();
-  const days = weekDays();
-  const from = dateKey(days[0]), to = dateKey(days[5]);
-  const q = query(collection(db, "appointments"),
-    where("date", ">=", from), where("date", "<=", to));
+  const dateKeys = weekDays().map(d => dateKey(d));
+  const q = query(collection(db, "appointments"), where("date", "in", dateKeys));
   unsubscribe = onSnapshot(q, snap => {
     lastApts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderWeekApts(lastApts);
-  });
+  }, err => console.error("week query error:", err));
 }
 
 function renderWeekApts(apts) {

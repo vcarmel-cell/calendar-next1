@@ -66,7 +66,8 @@
     .header-brand {
       font-size: 1.05rem; font-weight: 700; color: var(--primary);
       white-space: nowrap; letter-spacing: .04em;
-      position: absolute; left: 50%; transform: translateX(-50%);
+      position: absolute; left: 0; right: 0;
+      text-align: center; pointer-events: none;
     }
     .date-nav { display: flex; align-items: center; gap: 8px; flex: 1; }
     .date-nav button {
@@ -268,7 +269,7 @@
 
     /* ── MOBILE ────────────────────────────────────── */
     @media (max-width: 600px) {
-      .header-brand { display: none; }
+      .header-brand { font-size: .85rem; }
       #date-display { font-size: .88rem; min-width: 140px; }
       .designer-col, .week-col { min-width: 110px; }
       .filter-wrap label { display: none; }

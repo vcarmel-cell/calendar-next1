@@ -21,6 +21,7 @@ async function backup() {
 
   // Save latest
   const backupDir = path.join(__dirname, '..', 'backup');
+  fs.mkdirSync(backupDir, { recursive: true });
   fs.writeFileSync(path.join(backupDir, 'latest.json'), JSON.stringify(data, null, 2));
 
   // Save daily snapshot (last 30 days kept)

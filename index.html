@@ -6,149 +6,150 @@
   <title>יומן פגישות - עיצוב פנים</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-      background: #f4f6f9;
-      color: #333;
-      direction: rtl;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: #f4f6f9; color: #333; direction: rtl; }
 
     /* ── LOGIN ─────────────────────────────────────── */
     #login-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       min-height: 100vh;
       background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
     }
     .login-box {
-      background: white;
-      padding: 40px 36px;
-      border-radius: 18px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
-      text-align: center;
-      width: 300px;
+      background: white; padding: 40px 36px; border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.22); text-align: center; width: 300px;
     }
     .login-logo { font-size: 2.4rem; margin-bottom: 8px; }
     .login-box h1 { font-size: 1.3rem; color: #4f46e5; margin-bottom: 4px; }
-    .login-box p  { color: #888; font-size: 0.88rem; margin-bottom: 24px; }
+    .login-box p  { color: #888; font-size: .88rem; margin-bottom: 24px; }
     .login-box input {
-      width: 100%; padding: 11px 14px;
-      border: 2px solid #e5e7eb; border-radius: 9px;
-      font-size: 1rem; text-align: center; direction: ltr;
-      margin-bottom: 12px; transition: border-color .2s;
+      width: 100%; padding: 11px 14px; border: 2px solid #e5e7eb; border-radius: 9px;
+      font-size: 1rem; text-align: center; direction: ltr; margin-bottom: 12px; transition: border-color .2s;
     }
     .login-box input:focus { outline: none; border-color: #4f46e5; }
     .login-box button {
-      width: 100%; padding: 11px;
-      background: #4f46e5; color: white;
-      border: none; border-radius: 9px;
-      font-size: 1rem; cursor: pointer;
-      transition: background .2s;
+      width: 100%; padding: 11px; background: #4f46e5; color: white;
+      border: none; border-radius: 9px; font-size: 1rem; cursor: pointer; transition: background .2s;
     }
     .login-box button:hover { background: #3730a3; }
-    .login-error {
-      color: #ef4444; font-size: 0.83rem;
-      margin-top: 10px; display: none;
-    }
+    .login-error { color: #ef4444; font-size: .83rem; margin-top: 10px; display: none; }
 
     /* ── APP SHELL ─────────────────────────────────── */
     #app { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
 
     /* ── HEADER ────────────────────────────────────── */
     .app-header {
-      background: white;
-      padding: 10px 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      display: flex; align-items: center; gap: 12px;
-      flex-wrap: wrap; z-index: 20;
+      background: white; padding: 10px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; z-index: 20;
     }
     .header-brand { font-size: 1rem; font-weight: 700; color: #4f46e5; white-space: nowrap; }
     .date-nav { display: flex; align-items: center; gap: 8px; flex: 1; }
     .date-nav button {
       background: #f3f4f6; border: none; border-radius: 7px;
       width: 34px; height: 34px; font-size: 1rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .15s;
+      display: flex; align-items: center; justify-content: center; transition: background .15s;
     }
     .date-nav button:hover { background: #e5e7eb; }
-    #date-display {
-      font-size: 1.05rem; font-weight: 600;
-      min-width: 210px; text-align: center;
-    }
+    #date-display { font-size: 1.05rem; font-weight: 600; min-width: 210px; text-align: center; }
     .btn-today {
       background: #4f46e5; color: white; border: none; border-radius: 7px;
-      padding: 6px 13px; font-size: 0.83rem; cursor: pointer;
-      transition: background .2s; white-space: nowrap;
+      padding: 6px 13px; font-size: .83rem; cursor: pointer; transition: background .2s; white-space: nowrap;
     }
     .btn-today:hover { background: #3730a3; }
+
+    /* View toggle */
+    .view-toggle { display: flex; background: #f3f4f6; border-radius: 8px; padding: 3px; gap: 2px; }
+    .view-toggle button {
+      background: none; border: none; border-radius: 6px;
+      padding: 5px 12px; font-size: .83rem; cursor: pointer;
+      color: #6b7280; transition: all .15s; white-space: nowrap;
+    }
+    .view-toggle button.active { background: white; color: #4f46e5; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
     .filter-wrap { display: flex; align-items: center; gap: 6px; }
-    .filter-wrap label { font-size: 0.82rem; color: #6b7280; }
+    .filter-wrap label { font-size: .82rem; color: #6b7280; }
     .filter-wrap select {
       padding: 6px 10px; border: 2px solid #e5e7eb; border-radius: 7px;
-      font-size: 0.88rem; cursor: pointer; background: white;
+      font-size: .88rem; cursor: pointer; background: white;
     }
     .btn-icon {
       background: #f3f4f6; border: none; border-radius: 7px;
       width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .15s;
+      display: flex; align-items: center; justify-content: center; transition: background .15s;
     }
     .btn-icon:hover { background: #e5e7eb; }
     .btn-logout {
       background: none; border: 1px solid #e5e7eb; border-radius: 7px;
-      padding: 5px 11px; font-size: 0.8rem; color: #9ca3af;
-      cursor: pointer; transition: all .2s;
+      padding: 5px 11px; font-size: .8rem; color: #9ca3af; cursor: pointer; transition: all .2s;
     }
     .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
 
     /* ── CALENDAR BODY ─────────────────────────────── */
     .calendar-body { display: flex; flex: 1; overflow: hidden; }
-
     .time-gutter {
       width: 52px; flex-shrink: 0; background: #fafafa;
-      border-left: 1px solid #e5e7eb; overflow: hidden;
-      padding-top: 44px;
+      border-left: 1px solid #e5e7eb; overflow: hidden; padding-top: 44px;
     }
     .time-label {
       height: 60px; display: flex; align-items: flex-start; justify-content: center;
-      font-size: 0.72rem; color: #9ca3af; padding-top: 4px;
-      border-top: 1px solid #e5e7eb;
+      font-size: .72rem; color: #9ca3af; padding-top: 4px; border-top: 1px solid #e5e7eb;
     }
 
+    /* ── DAY VIEW GRID ─────────────────────────────── */
     .designers-grid { display: flex; flex: 1; overflow-x: auto; overflow-y: auto; }
     .designer-col { flex: 1; min-width: 155px; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; }
+
+    /* ── WEEK VIEW GRID ────────────────────────────── */
+    .week-grid { display: flex; flex: 1; overflow-x: auto; overflow-y: auto; }
+    .week-col { flex: 1; min-width: 110px; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; }
+
+    /* shared column header */
+    .col-header {
+      height: 44px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: white; border-bottom: 2px solid #e5e7eb;
+      position: sticky; top: 0; z-index: 10;
+      font-size: .8rem; color: #6b7280; gap: 1px;
+    }
+    .col-header.today-col { border-bottom-color: #4f46e5; background: #f5f3ff; }
+    .col-header .col-day-name { font-size: .75rem; }
+    .col-header .col-date-num {
+      font-size: 1rem; font-weight: 700; color: #111;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+    }
+    .col-header.today-col .col-date-num { background: #4f46e5; color: white; }
+
+    /* designer column header (day view) */
     .designer-header {
       height: 44px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 0.93rem; background: white;
+      font-weight: 700; font-size: .93rem; background: white;
       border-bottom: 3px solid; position: sticky; top: 0; z-index: 10;
     }
-    .designer-slots { position: relative; flex: 1; }
+
+    .col-slots { position: relative; flex: 1; }
     .slot-line { position: absolute; width: 100%; pointer-events: none; }
     .slot-line.hour { border-top: 1px solid #e5e7eb; }
     .slot-line.half { border-top: 1px dashed #f3f4f6; }
-    .slot-click {
-      position: absolute; width: 100%; height: 30px;
-      cursor: pointer; transition: background .1s;
-    }
+    .slot-click { position: absolute; width: 100%; height: 30px; cursor: pointer; transition: background .1s; }
     .slot-click:hover { background: rgba(79,70,229,.06); }
 
     /* ── APPOINTMENTS ──────────────────────────────── */
     .appointment {
-      position: absolute; right: 3px; left: 3px;
-      border-radius: 7px; padding: 4px 7px; font-size: 0.78rem;
+      position: absolute; right: 2px; left: 2px;
+      border-radius: 6px; padding: 3px 6px; font-size: .76rem;
       cursor: pointer; overflow: hidden; color: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      box-shadow: 0 2px 5px rgba(0,0,0,.18);
       transition: transform .1s, box-shadow .1s; z-index: 5;
     }
-    .appointment:hover { transform: scale(1.025); box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
-    .apt-time   { font-size: 0.69rem; opacity: .85; }
+    .appointment:hover { transform: scale(1.025); box-shadow: 0 4px 10px rgba(0,0,0,.22); }
+    .apt-time   { font-size: .67rem; opacity: .85; }
     .apt-client { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .apt-notes  { font-size: 0.69rem; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .apt-designer { font-size: .67rem; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .apt-notes  { font-size: .67rem; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ── MODALS (shared) ───────────────────────────── */
+    /* ── MODALS ────────────────────────────────────── */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.45); z-index: 200;
@@ -158,23 +159,19 @@
     .modal {
       background: white; border-radius: 16px; padding: 26px;
       width: 380px; max-width: 94vw;
-      box-shadow: 0 24px 60px rgba(0,0,0,.28);
-      animation: pop .18s ease;
+      box-shadow: 0 24px 60px rgba(0,0,0,.28); animation: pop .18s ease;
     }
     @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .modal-header h3 { font-size: 1.05rem; }
     .btn-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9ca3af; line-height: 1; }
     .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    .form-group label { display: block; font-size: .82rem; font-weight: 600; color: #374151; margin-bottom: 5px; }
     .form-group input,
     .form-group select,
     .form-group textarea {
-      width: 100%; padding: 9px 11px; border: 2px solid #e5e7eb;
-      border-radius: 8px; font-size: 0.93rem; font-family: inherit;
-      direction: rtl; transition: border-color .2s;
+      width: 100%; padding: 9px 11px; border: 2px solid #e5e7eb; border-radius: 8px;
+      font-size: .93rem; font-family: inherit; direction: rtl; transition: border-color .2s;
     }
     .form-group input:focus,
     .form-group select:focus,
@@ -185,13 +182,13 @@
     .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
     .btn-save {
       flex: 1; padding: 10px; background: #4f46e5; color: white;
-      border: none; border-radius: 8px; font-size: 0.95rem;
+      border: none; border-radius: 8px; font-size: .95rem;
       cursor: pointer; font-family: inherit; transition: background .2s;
     }
     .btn-save:hover { background: #3730a3; }
     .btn-delete {
       padding: 10px 15px; background: #fee2e2; color: #ef4444;
-      border: none; border-radius: 8px; font-size: 0.95rem;
+      border: none; border-radius: 8px; font-size: .95rem;
       cursor: pointer; font-family: inherit; transition: background .2s;
     }
     .btn-delete:hover { background: #fecaca; }
@@ -206,14 +203,12 @@
     .designer-row:last-of-type { border-bottom: none; }
     .designer-row input[type="text"] {
       flex: 1; padding: 8px 10px; border: 2px solid #e5e7eb;
-      border-radius: 7px; font-size: 0.93rem; font-family: inherit;
-      direction: rtl;
+      border-radius: 7px; font-size: .93rem; font-family: inherit; direction: rtl;
     }
     .designer-row input[type="text"]:focus { outline: none; border-color: #4f46e5; }
     .color-dot {
       width: 28px; height: 28px; border-radius: 50%;
-      border: 2px solid #e5e7eb; cursor: pointer;
-      flex-shrink: 0; transition: transform .15s;
+      border: 2px solid #e5e7eb; cursor: pointer; flex-shrink: 0; transition: transform .15s;
     }
     .color-dot:hover { transform: scale(1.15); }
     .color-picker-hidden { display: none; }
@@ -227,29 +222,17 @@
       display: flex; align-items: center; gap: 6px;
       background: none; border: 2px dashed #d1d5db; border-radius: 8px;
       padding: 8px 14px; width: 100%; margin-top: 12px;
-      font-size: 0.88rem; color: #9ca3af; cursor: pointer;
+      font-size: .88rem; color: #9ca3af; cursor: pointer;
       transition: all .2s; font-family: inherit;
     }
     .btn-add-designer:hover { border-color: #4f46e5; color: #4f46e5; }
-    .settings-note {
-      font-size: 0.78rem; color: #9ca3af;
-      margin-top: 10px; padding-top: 10px;
-      border-top: 1px solid #f3f4f6;
-    }
-
-    /* ── EMPTY STATE ───────────────────────────────── */
-    .empty-state {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; height: 200px;
-      color: #9ca3af; font-size: 0.9rem; gap: 8px;
-    }
-    .empty-state span:first-child { font-size: 2rem; }
+    .settings-note { font-size: .78rem; color: #9ca3af; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f3f4f6; }
 
     /* ── MOBILE ────────────────────────────────────── */
-    @media (max-width: 580px) {
+    @media (max-width: 600px) {
       .header-brand { display: none; }
-      #date-display { font-size: .9rem; min-width: 160px; }
-      .designer-col { min-width: 120px; }
+      #date-display { font-size: .88rem; min-width: 140px; }
+      .designer-col, .week-col { min-width: 110px; }
       .filter-wrap label { display: none; }
       .settings-modal { width: 95vw; }
     }
@@ -279,6 +262,10 @@
       <button id="btn-next">&#8592;</button>
     </div>
     <button class="btn-today" id="btn-today">היום</button>
+    <div class="view-toggle">
+      <button id="vt-day" class="active">יומי</button>
+      <button id="vt-week">שבועי</button>
+    </div>
     <div class="filter-wrap">
       <label>סינון:</label>
       <select id="designer-filter"></select>
@@ -290,6 +277,7 @@
   <div class="calendar-body">
     <div class="time-gutter" id="time-gutter"></div>
     <div class="designers-grid" id="designers-grid"></div>
+    <div class="week-grid" id="week-grid" style="display:none"></div>
   </div>
 </div>
 
@@ -337,17 +325,14 @@
       <button class="btn-close" id="settings-close">×</button>
     </div>
     <div id="designers-list"></div>
-    <button class="btn-add-designer" id="btn-add-designer">
-      <span>＋</span> הוספת מעצבת
-    </button>
-    <p class="settings-note">לחץ על העיגול הצבעוני לשינוי צבע המעצבת</p>
+    <button class="btn-add-designer" id="btn-add-designer">＋ הוספת מעצבת</button>
+    <p class="settings-note">לחץ על העיגול הצבעוני לשינוי צבע</p>
     <div class="modal-actions">
       <button class="btn-save" id="settings-save">שמירה</button>
     </div>
   </div>
 </div>
 
-<!-- ── FIREBASE + APP LOGIC ────────────────────────── -->
 <script type="module">
 import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getAuth, signInAnonymously, signOut, onAuthStateChanged }
@@ -356,9 +341,9 @@ import { getFirestore, collection, doc, query, where,
          onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, getDoc }
                                 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-/* ════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    ⚙️  שנה כאן רק את הסיסמה
-   ════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 const APP_PASSWORD = "1234";
 
 const DEFAULT_DESIGNERS = [
@@ -370,7 +355,7 @@ const DEFAULT_DESIGNERS = [
 const START_HOUR = 8;
 const END_HOUR   = 20;
 const HOUR_PX    = 60;
-/* ════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════ */
 
 const firebaseConfig = {
   apiKey:            "AIzaSyAUtcuAcjrpeOjWZb6LDmRuPgWqV7TeUaE",
@@ -386,16 +371,20 @@ const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
 /* ─── State ─────────────────────────────────────── */
-let DESIGNERS    = [];
-let currentDate  = today();
-let activeFilter = "all";
-let editingId    = null;
-let unsubscribe  = null;
-let lastApts     = [];
+let DESIGNERS     = [];
+let currentDate   = today();
+let activeFilter  = "all";
+let viewMode      = "day";   // "day" | "week"
+let editingId     = null;
+let modalDateStr  = "";      // YYYY-MM-DD for the appointment being created/edited
+let unsubscribe   = null;
+let lastApts      = [];
 
-function today() {
-  const d = new Date(); d.setHours(0,0,0,0); return d;
-}
+const DAYS_HE    = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const DAYS_SHORT = ["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"];
+const MONTHS_HE  = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+
+function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
 
 /* ─── Auth ───────────────────────────────────────── */
 document.getElementById("login-btn").addEventListener("click", doLogin);
@@ -434,23 +423,27 @@ onAuthStateChanged(auth, user => {
 async function initApp() {
   await loadDesigners();
   buildTimeGutter();
-  buildGrid();
   buildFilterSelect();
   buildModalDesigners();
   renderDateDisplay();
-  subscribeDay();
+  rebuildAndSubscribe();
   bindEvents();
 }
 
 function bindEvents() {
-  document.getElementById("btn-prev").addEventListener("click", () => changeDay(-1));
-  document.getElementById("btn-next").addEventListener("click", () => changeDay(1));
+  document.getElementById("btn-prev").addEventListener("click", () => navigate(-1));
+  document.getElementById("btn-next").addEventListener("click", () => navigate(1));
   document.getElementById("btn-today").addEventListener("click", () => {
-    currentDate = today(); renderDateDisplay(); subscribeDay();
+    currentDate = today(); renderDateDisplay(); rebuildAndSubscribe();
   });
   document.getElementById("designer-filter").addEventListener("change", e => {
-    activeFilter = e.target.value; buildGrid(); renderApts(lastApts);
+    activeFilter = e.target.value;
+    if (viewMode === "day") { buildDayGrid(); renderApts(lastApts); }
+    else                    { buildWeekGrid(); renderWeekApts(lastApts); }
   });
+  // View toggle
+  document.getElementById("vt-day").addEventListener("click", () => setView("day"));
+  document.getElementById("vt-week").addEventListener("click", () => setView("week"));
   // Appointment modal
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("modal-overlay").addEventListener("click", e => {
@@ -468,38 +461,75 @@ function bindEvents() {
   document.getElementById("btn-add-designer").addEventListener("click", addDesignerRow);
 }
 
+/* ─── View switching ─────────────────────────────── */
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById("vt-day").classList.toggle("active", mode === "day");
+  document.getElementById("vt-week").classList.toggle("active", mode === "week");
+  document.getElementById("designers-grid").style.display = mode === "day"  ? "flex" : "none";
+  document.getElementById("week-grid").style.display      = mode === "week" ? "flex" : "none";
+  renderDateDisplay();
+  rebuildAndSubscribe();
+}
+
+function rebuildAndSubscribe() {
+  if (viewMode === "day") { buildDayGrid(); subscribeDay(); }
+  else                    { buildWeekGrid(); subscribeWeek(); }
+}
+
+/* ─── Navigation ─────────────────────────────────── */
+function navigate(delta) {
+  currentDate = new Date(currentDate);
+  currentDate.setDate(currentDate.getDate() + (viewMode === "week" ? delta * 7 : delta));
+  renderDateDisplay();
+  rebuildAndSubscribe();
+}
+
+function renderDateDisplay() {
+  const el = document.getElementById("date-display");
+  if (viewMode === "day") {
+    const d = currentDate;
+    el.textContent = `יום ${DAYS_HE[d.getDay()]}, ${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`;
+  } else {
+    const days = weekDays();
+    const s = days[0], e = days[6];
+    if (s.getMonth() === e.getMonth()) {
+      el.textContent = `${s.getDate()} – ${e.getDate()} ב${MONTHS_HE[s.getMonth()]} ${s.getFullYear()}`;
+    } else {
+      el.textContent = `${s.getDate()} ב${MONTHS_HE[s.getMonth()]} – ${e.getDate()} ב${MONTHS_HE[e.getMonth()]}`;
+    }
+  }
+}
+
+/* ─── Week helpers ───────────────────────────────── */
+function weekStart(d = currentDate) {
+  const s = new Date(d);
+  s.setDate(s.getDate() - s.getDay()); // Sunday
+  s.setHours(0,0,0,0);
+  return s;
+}
+function weekDays(d = currentDate) {
+  const s = weekStart(d);
+  return Array.from({length: 7}, (_, i) => {
+    const day = new Date(s); day.setDate(s.getDate() + i); return day;
+  });
+}
+
+/* ─── Date key ───────────────────────────────────── */
+function dateKey(d = currentDate) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function todayKey() { return dateKey(today()); }
+
 /* ─── Designers (Firestore) ─────────────────────── */
 async function loadDesigners() {
   const ref = doc(db, "settings", "designers");
   const snap = await getDoc(ref);
-  if (snap.exists()) {
-    DESIGNERS = snap.data().list;
-  } else {
-    DESIGNERS = DEFAULT_DESIGNERS;
-    await setDoc(ref, { list: DESIGNERS });
-  }
+  if (snap.exists()) DESIGNERS = snap.data().list;
+  else { DESIGNERS = DEFAULT_DESIGNERS; await setDoc(ref, { list: DESIGNERS }); }
 }
 
-/* ─── Date helpers ───────────────────────────────── */
-function changeDay(delta) {
-  currentDate = new Date(currentDate);
-  currentDate.setDate(currentDate.getDate() + delta);
-  renderDateDisplay(); subscribeDay();
-}
-
-function dateKey(d = currentDate) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
-function renderDateDisplay() {
-  const days   = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
-  const months = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
-  const d = currentDate;
-  document.getElementById("date-display").textContent =
-    `יום ${days[d.getDay()]}, ${d.getDate()} ב${months[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-/* ─── Build calendar UI ──────────────────────────── */
+/* ─── Time gutter ────────────────────────────────── */
 function buildTimeGutter() {
   const g = document.getElementById("time-gutter");
   g.innerHTML = "";
@@ -511,90 +541,45 @@ function buildTimeGutter() {
   }
 }
 
-function buildGrid() {
+/* ─── Slot scaffold (reused by both views) ────────── */
+function buildSlots(container, onClickSlot) {
+  container.style.height = `${(END_HOUR - START_HOUR) * HOUR_PX}px`;
+  for (let h = START_HOUR; h < END_HOUR; h++) {
+    const offset = (h - START_HOUR) * HOUR_PX;
+    const ln = document.createElement("div"); ln.className = "slot-line hour"; ln.style.top = `${offset}px`;
+    const lh = document.createElement("div"); lh.className = "slot-line half"; lh.style.top = `${offset + HOUR_PX/2}px`;
+    container.appendChild(ln); container.appendChild(lh);
+  }
+  for (let h = START_HOUR; h < END_HOUR; h++) {
+    for (let half = 0; half < 2; half++) {
+      const zone = document.createElement("div");
+      zone.className = "slot-click";
+      zone.style.top = `${((h - START_HOUR) * 60 + half * 30) / 60 * HOUR_PX}px`;
+      const t = `${String(h).padStart(2,"0")}:${half === 0 ? "00" : "30"}`;
+      zone.addEventListener("click", () => onClickSlot(t));
+      container.appendChild(zone);
+    }
+  }
+}
+
+/* ─── Day view ───────────────────────────────────── */
+function buildDayGrid() {
   const grid = document.getElementById("designers-grid");
   grid.innerHTML = "";
-
   const visible = visibleDesigners();
-  if (visible.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.innerHTML = "<span>👩‍🎨</span><span>אין מעצבות מוגדרות. לחץ ⚙️ להוספה.</span>";
-    grid.appendChild(empty);
-    return;
-  }
-
   visible.forEach(d => {
     const col = document.createElement("div");
-    col.className = "designer-col";
-    col.dataset.id = d.id;
-
+    col.className = "designer-col"; col.dataset.id = d.id;
     const hdr = document.createElement("div");
-    hdr.className = "designer-header";
-    hdr.textContent = d.name;
-    hdr.style.borderColor = d.color;
-    hdr.style.color = d.color;
+    hdr.className = "designer-header"; hdr.textContent = d.name;
+    hdr.style.borderColor = d.color; hdr.style.color = d.color;
     col.appendChild(hdr);
-
-    const slots = document.createElement("div");
-    slots.className = "designer-slots";
-    slots.style.height = `${(END_HOUR - START_HOUR) * HOUR_PX}px`;
-
-    for (let h = START_HOUR; h < END_HOUR; h++) {
-      const offset = (h - START_HOUR) * HOUR_PX;
-      const ln = document.createElement("div");
-      ln.className = "slot-line hour"; ln.style.top = `${offset}px`;
-      slots.appendChild(ln);
-      const lh = document.createElement("div");
-      lh.className = "slot-line half"; lh.style.top = `${offset + HOUR_PX/2}px`;
-      slots.appendChild(lh);
-    }
-
-    for (let h = START_HOUR; h < END_HOUR; h++) {
-      for (let half = 0; half < 2; half++) {
-        const zone = document.createElement("div");
-        zone.className = "slot-click";
-        zone.style.top = `${((h - START_HOUR) * 60 + half * 30) / 60 * HOUR_PX}px`;
-        const t = `${String(h).padStart(2,"0")}:${half === 0 ? "00" : "30"}`;
-        zone.addEventListener("click", () => openNew(d.id, t));
-        slots.appendChild(zone);
-      }
-    }
-
-    col.appendChild(slots);
-    grid.appendChild(col);
+    const slots = document.createElement("div"); slots.className = "col-slots";
+    buildSlots(slots, t => openNew(d.id, t, dateKey()));
+    col.appendChild(slots); grid.appendChild(col);
   });
 }
 
-function visibleDesigners() {
-  return activeFilter === "all" ? DESIGNERS : DESIGNERS.filter(d => d.id === activeFilter);
-}
-
-function buildFilterSelect() {
-  const sel = document.getElementById("designer-filter");
-  const prev = sel.value;
-  sel.innerHTML = '<option value="all">כל המעצבות</option>';
-  DESIGNERS.forEach(d => {
-    const o = document.createElement("option");
-    o.value = d.id; o.textContent = d.name;
-    sel.appendChild(o);
-  });
-  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-}
-
-function buildModalDesigners() {
-  const sel = document.getElementById("f-designer");
-  const prev = sel.value;
-  sel.innerHTML = "";
-  DESIGNERS.forEach(d => {
-    const o = document.createElement("option");
-    o.value = d.id; o.textContent = d.name;
-    sel.appendChild(o);
-  });
-  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-}
-
-/* ─── Firestore appointments ─────────────────────── */
 function subscribeDay() {
   if (unsubscribe) unsubscribe();
   const q = query(collection(db, "appointments"), where("date", "==", dateKey()));
@@ -605,48 +590,119 @@ function subscribeDay() {
 }
 
 function renderApts(apts) {
-  document.querySelectorAll(".appointment").forEach(el => el.remove());
+  document.querySelectorAll("#designers-grid .appointment").forEach(el => el.remove());
   const ids = visibleDesigners().map(d => d.id);
   apts.filter(a => ids.includes(a.designerId)).forEach(apt => {
-    const slots = document.querySelector(`.designer-col[data-id="${apt.designerId}"] .designer-slots`);
+    const slots = document.querySelector(`#designers-grid .designer-col[data-id="${apt.designerId}"] .col-slots`);
     if (!slots) return;
     const designer = DESIGNERS.find(d => d.id === apt.designerId);
     if (!designer) return;
-
-    const s = toMins(apt.startTime) - START_HOUR * 60;
-    const e = toMins(apt.endTime)   - START_HOUR * 60;
-    const top    = (s / 60) * HOUR_PX;
-    const height = Math.max(((e - s) / 60) * HOUR_PX, 28);
-
-    const el = document.createElement("div");
-    el.className = "appointment";
-    el.style.top = `${top}px`;
-    el.style.height = `${height}px`;
-    el.style.background = designer.color;
-    el.innerHTML = `
-      <div class="apt-time">${apt.startTime} – ${apt.endTime}</div>
-      <div class="apt-client">${apt.clientName || ""}</div>
-      ${apt.notes ? `<div class="apt-notes">${apt.notes}</div>` : ""}
-    `;
-    el.addEventListener("click", ev => { ev.stopPropagation(); openEdit(apt); });
-    slots.appendChild(el);
+    placeAppointment(slots, apt, designer.color, false);
   });
 }
 
-function toMins(t) {
-  const [h, m] = t.split(":").map(Number); return h * 60 + m;
+/* ─── Week view ──────────────────────────────────── */
+function buildWeekGrid() {
+  const grid = document.getElementById("week-grid");
+  grid.innerHTML = "";
+  const tk = todayKey();
+  weekDays().forEach(day => {
+    const dk = dateKey(day);
+    const col = document.createElement("div");
+    col.className = "week-col"; col.dataset.date = dk;
+
+    const hdr = document.createElement("div");
+    hdr.className = "col-header" + (dk === tk ? " today-col" : "");
+    hdr.innerHTML = `<span class="col-day-name">${DAYS_SHORT[day.getDay()]}</span>
+                     <span class="col-date-num">${day.getDate()}</span>`;
+    col.appendChild(hdr);
+
+    const slots = document.createElement("div"); slots.className = "col-slots";
+    buildSlots(slots, t => openNew(DESIGNERS[0]?.id || "", t, dk));
+    col.appendChild(slots); grid.appendChild(col);
+  });
+}
+
+function subscribeWeek() {
+  if (unsubscribe) unsubscribe();
+  const days = weekDays();
+  const from = dateKey(days[0]), to = dateKey(days[6]);
+  const q = query(collection(db, "appointments"),
+    where("date", ">=", from), where("date", "<=", to));
+  unsubscribe = onSnapshot(q, snap => {
+    lastApts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderWeekApts(lastApts);
+  });
+}
+
+function renderWeekApts(apts) {
+  document.querySelectorAll("#week-grid .appointment").forEach(el => el.remove());
+  const filterIds = activeFilter === "all" ? DESIGNERS.map(d => d.id) : [activeFilter];
+  apts.filter(a => filterIds.includes(a.designerId)).forEach(apt => {
+    const slots = document.querySelector(`#week-grid .week-col[data-date="${apt.date}"] .col-slots`);
+    if (!slots) return;
+    const designer = DESIGNERS.find(d => d.id === apt.designerId);
+    if (!designer) return;
+    placeAppointment(slots, apt, designer.color, true);
+  });
+}
+
+/* ─── Shared appointment renderer ────────────────── */
+function placeAppointment(container, apt, color, showDesigner) {
+  const s = toMins(apt.startTime) - START_HOUR * 60;
+  const e = toMins(apt.endTime)   - START_HOUR * 60;
+  const top    = (s / 60) * HOUR_PX;
+  const height = Math.max(((e - s) / 60) * HOUR_PX, 24);
+
+  const el = document.createElement("div");
+  el.className = "appointment";
+  el.style.top = `${top}px`; el.style.height = `${height}px`; el.style.background = color;
+  const designer = DESIGNERS.find(d => d.color === color);
+  el.innerHTML = `
+    <div class="apt-time">${apt.startTime} – ${apt.endTime}</div>
+    <div class="apt-client">${apt.clientName || ""}</div>
+    ${showDesigner && designer ? `<div class="apt-designer">${designer.name}</div>` : ""}
+    ${apt.notes ? `<div class="apt-notes">${apt.notes}</div>` : ""}
+  `;
+  el.addEventListener("click", ev => { ev.stopPropagation(); openEdit(apt); });
+  container.appendChild(el);
+}
+
+function toMins(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
+function visibleDesigners() {
+  return activeFilter === "all" ? DESIGNERS : DESIGNERS.filter(d => d.id === activeFilter);
+}
+
+/* ─── Filter & modal designers ──────────────────── */
+function buildFilterSelect() {
+  const sel = document.getElementById("designer-filter");
+  const prev = sel.value;
+  sel.innerHTML = '<option value="all">כל המעצבות</option>';
+  DESIGNERS.forEach(d => {
+    const o = document.createElement("option"); o.value = d.id; o.textContent = d.name; sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+function buildModalDesigners() {
+  const sel = document.getElementById("f-designer");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  DESIGNERS.forEach(d => {
+    const o = document.createElement("option"); o.value = d.id; o.textContent = d.name; sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
 
 /* ─── Appointment modal ──────────────────────────── */
-function openNew(designerId, startTime) {
-  editingId = null;
+function openNew(designerId, startTime, dateStr) {
+  editingId    = null;
+  modalDateStr = dateStr;
   document.getElementById("modal-title").textContent = "פגישה חדשה";
   document.getElementById("f-designer").value = designerId;
   document.getElementById("f-client").value   = "";
   document.getElementById("f-start").value    = startTime;
   const [h, m] = startTime.split(":").map(Number);
-  const eh = Math.min(h + 1, END_HOUR);
-  document.getElementById("f-end").value = `${String(eh).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  document.getElementById("f-end").value = `${String(Math.min(h+1,END_HOUR)).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
   document.getElementById("f-notes").value = "";
   document.getElementById("btn-delete").style.display = "none";
   document.getElementById("modal-overlay").classList.add("open");
@@ -654,7 +710,8 @@ function openNew(designerId, startTime) {
 }
 
 function openEdit(apt) {
-  editingId = apt.id;
+  editingId    = apt.id;
+  modalDateStr = apt.date;
   document.getElementById("modal-title").textContent = "עריכת פגישה";
   document.getElementById("f-designer").value = apt.designerId;
   document.getElementById("f-client").value   = apt.clientName || "";
@@ -671,7 +728,7 @@ async function saveApt() {
   const client = document.getElementById("f-client").value.trim();
   if (!client) { document.getElementById("f-client").focus(); return; }
   const data = {
-    date:       dateKey(),
+    date:       modalDateStr || dateKey(),
     designerId: document.getElementById("f-designer").value,
     clientName: client,
     startTime:  document.getElementById("f-start").value,
@@ -682,10 +739,7 @@ async function saveApt() {
     if (editingId) await updateDoc(doc(db, "appointments", editingId), data);
     else           await addDoc(collection(db, "appointments"), data);
     closeModal();
-  } catch (err) {
-    alert("שגיאה בשמירה. בדוק הרשאות Firestore.");
-    console.error(err);
-  }
+  } catch (err) { alert("שגיאה בשמירה."); console.error(err); }
 }
 
 async function deleteApt() {
@@ -697,109 +751,61 @@ async function deleteApt() {
 /* ─── Settings modal ─────────────────────────────── */
 const PRESET_COLORS = ["#7c3aed","#2563eb","#059669","#dc2626","#d97706","#0891b2","#be185d","#65a30d"];
 
-function openSettings() {
-  renderDesignersList();
-  document.getElementById("settings-overlay").classList.add("open");
-}
-
-function closeSettings() {
-  document.getElementById("settings-overlay").classList.remove("open");
-}
+function openSettings()  { renderDesignersList(); document.getElementById("settings-overlay").classList.add("open"); }
+function closeSettings() { document.getElementById("settings-overlay").classList.remove("open"); }
 
 function renderDesignersList() {
   const list = document.getElementById("designers-list");
   list.innerHTML = "";
-  // Clone so we can edit without committing immediately
   const draft = DESIGNERS.map(d => ({ ...d }));
   list.dataset.draft = JSON.stringify(draft);
-
   draft.forEach((d, i) => appendDesignerRow(list, d, i));
 }
 
 function appendDesignerRow(list, d, i) {
-  const row = document.createElement("div");
-  row.className = "designer-row";
-  row.dataset.index = i;
-
-  const colorBtn = document.createElement("div");
-  colorBtn.className = "color-dot";
-  colorBtn.style.background = d.color;
-  colorBtn.title = "שנה צבע";
-
-  const colorInput = document.createElement("input");
-  colorInput.type = "color";
-  colorInput.className = "color-picker-hidden";
-  colorInput.value = d.color;
-  colorInput.addEventListener("input", e => {
-    colorBtn.style.background = e.target.value;
-    updateDraft(list, i, "color", e.target.value);
-  });
+  const row = document.createElement("div"); row.className = "designer-row"; row.dataset.index = i;
+  const colorBtn   = document.createElement("div"); colorBtn.className = "color-dot"; colorBtn.style.background = d.color; colorBtn.title = "שנה צבע";
+  const colorInput = document.createElement("input"); colorInput.type = "color"; colorInput.className = "color-picker-hidden"; colorInput.value = d.color;
+  colorInput.addEventListener("input", e => { colorBtn.style.background = e.target.value; updateDraft(list, i, "color", e.target.value); });
   colorBtn.addEventListener("click", () => colorInput.click());
-
-  const nameInput = document.createElement("input");
-  nameInput.type = "text";
-  nameInput.value = d.name;
-  nameInput.placeholder = "שם מעצבת";
+  const nameInput = document.createElement("input"); nameInput.type = "text"; nameInput.value = d.name; nameInput.placeholder = "שם מעצבת";
   nameInput.addEventListener("input", e => updateDraft(list, i, "name", e.target.value));
-
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "btn-remove-designer";
-  removeBtn.innerHTML = "×";
-  removeBtn.title = "הסרת מעצבת";
+  const removeBtn = document.createElement("button"); removeBtn.className = "btn-remove-designer"; removeBtn.innerHTML = "×";
   removeBtn.addEventListener("click", () => {
-    let draft = JSON.parse(list.dataset.draft);
-    draft.splice(i, 1);
-    list.dataset.draft = JSON.stringify(draft);
-    list.innerHTML = "";
+    let draft = JSON.parse(list.dataset.draft); draft.splice(i, 1);
+    list.dataset.draft = JSON.stringify(draft); list.innerHTML = "";
     draft.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
   });
-
-  row.appendChild(colorBtn);
-  row.appendChild(colorInput);
-  row.appendChild(nameInput);
-  row.appendChild(removeBtn);
+  row.appendChild(colorBtn); row.appendChild(colorInput); row.appendChild(nameInput); row.appendChild(removeBtn);
   list.appendChild(row);
 }
 
 function updateDraft(list, i, key, value) {
-  const draft = JSON.parse(list.dataset.draft);
-  draft[i][key] = value;
-  list.dataset.draft = JSON.stringify(draft);
+  const draft = JSON.parse(list.dataset.draft); draft[i][key] = value; list.dataset.draft = JSON.stringify(draft);
 }
 
 function addDesignerRow() {
-  const list = document.getElementById("designers-list");
+  const list  = document.getElementById("designers-list");
   const draft = JSON.parse(list.dataset.draft);
-  const newId = String(Date.now());
-  const color = PRESET_COLORS[draft.length % PRESET_COLORS.length];
-  const newD = { id: newId, name: "", color };
-  draft.push(newD);
-  list.dataset.draft = JSON.stringify(draft);
+  const newD  = { id: String(Date.now()), name: "", color: PRESET_COLORS[draft.length % PRESET_COLORS.length] };
+  draft.push(newD); list.dataset.draft = JSON.stringify(draft);
   appendDesignerRow(list, newD, draft.length - 1);
-  // Focus the new name input
   setTimeout(() => list.lastElementChild?.querySelector("input[type=text]")?.focus(), 50);
 }
 
 async function saveSettings() {
   const list  = document.getElementById("designers-list");
   const draft = JSON.parse(list.dataset.draft).filter(d => d.name.trim() !== "");
-
   if (draft.length === 0) { alert("יש להגדיר לפחות מעצבת אחת."); return; }
-
   try {
     await setDoc(doc(db, "settings", "designers"), { list: draft });
-    DESIGNERS = draft;
-    activeFilter = "all";
+    DESIGNERS = draft; activeFilter = "all";
     document.getElementById("designer-filter").value = "all";
-    buildFilterSelect();
-    buildModalDesigners();
-    buildGrid();
-    renderApts(lastApts);
+    buildFilterSelect(); buildModalDesigners();
+    if (viewMode === "day") { buildDayGrid(); renderApts(lastApts); }
+    else                    { buildWeekGrid(); renderWeekApts(lastApts); }
     closeSettings();
-  } catch (err) {
-    alert("שגיאה בשמירה. בדוק הרשאות Firestore.");
-    console.error(err);
-  }
+  } catch (err) { alert("שגיאה בשמירה."); console.error(err); }
 }
 </script>
 </body>

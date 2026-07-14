@@ -736,7 +736,7 @@ function visibleDesigners() {
 function buildFilterSelect() {
   const sel = document.getElementById("designer-filter");
   const prev = sel.value;
-  sel.innerHTML = '<option value="all">כל המעצבות</option>';
+  sel.innerHTML = '<option value="all">יומנים</option>';
   DESIGNERS.forEach(d => {
     const o = document.createElement("option"); o.value = d.id; o.textContent = d.name; sel.appendChild(o);
   });

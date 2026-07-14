@@ -1,0 +1,35 @@
+name: Firestore Daily Backup
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # כל לילה בחצות שעון ישראל (22:00 UTC)
+  workflow_dispatch:         # אפשרות הרצה ידנית
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd scripts && npm install
+
+      - name: Run backup
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          PROJECT_ID: calendar-next1
+        run: node scripts/backup.js
+
+      - name: Commit backup
+        run: |
+          git config user.name "Backup Bot"
+          git config user.email "backup@calendar"
+          git add backup/
+          git diff --staged --quiet || git commit -m "Backup $(date +'%Y-%m-%d')"
+          git push

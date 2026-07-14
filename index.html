@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>יומן פגישות - עיצוב פנים</title>
+  <title>אביה עיצובים בעץ - יומן פגישות</title>
   <style>
     :root {
       --bg:        #F5EDE0;
@@ -61,11 +61,12 @@
       background: var(--card); padding: 10px 18px;
       box-shadow: 0 2px 10px rgba(60,30,10,.12);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; z-index: 20;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; z-index: 20; position: relative;
     }
     .header-brand {
-      font-size: 1rem; font-weight: 700; color: var(--primary);
-      white-space: nowrap; letter-spacing: .02em;
+      font-size: 1.05rem; font-weight: 700; color: var(--primary);
+      white-space: nowrap; letter-spacing: .04em;
+      position: absolute; left: 50%; transform: translateX(-50%);
     }
     .date-nav { display: flex; align-items: center; gap: 8px; flex: 1; }
     .date-nav button {
@@ -281,8 +282,8 @@
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">📅</div>
-    <h1>יומן פגישות</h1>
-    <p>עיצוב פנים</p>
+    <h1>אביה עיצובים בעץ</h1>
+    <p>יומן פגישות</p>
     <input type="password" id="pwd-input" placeholder="סיסמה" autocomplete="current-password">
     <button id="login-btn">כניסה</button>
     <div class="login-error" id="login-error">סיסמה שגויה, נסה שוב</div>
@@ -292,7 +293,7 @@
 <!-- ── MAIN APP ────────────────────────────────────── -->
 <div id="app">
   <div class="app-header">
-    <span class="header-brand">יומן פגישות</span>
+    <span class="header-brand">אביה עיצובים בעץ</span>
     <div class="date-nav">
       <button id="btn-prev">&#8594;</button>
       <span id="date-display"></span>

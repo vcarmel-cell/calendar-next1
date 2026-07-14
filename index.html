@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יומן פגישות - עיצוב פנים</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      direction: rtl;
+    }
+
+    /* ── LOGIN ─────────────────────────────────────── */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    }
+    .login-box {
+      background: white;
+      padding: 40px 36px;
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+      text-align: center;
+      width: 300px;
+    }
+    .login-logo { font-size: 2.4rem; margin-bottom: 8px; }
+    .login-box h1 { font-size: 1.3rem; color: #4f46e5; margin-bottom: 4px; }
+    .login-box p  { color: #888; font-size: 0.88rem; margin-bottom: 24px; }
+    .login-box input {
+      width: 100%; padding: 11px 14px;
+      border: 2px solid #e5e7eb; border-radius: 9px;
+      font-size: 1rem; text-align: center; direction: ltr;
+      margin-bottom: 12px; transition: border-color .2s;
+    }
+    .login-box input:focus { outline: none; border-color: #4f46e5; }
+    .login-box button {
+      width: 100%; padding: 11px;
+      background: #4f46e5; color: white;
+      border: none; border-radius: 9px;
+      font-size: 1rem; cursor: pointer;
+      transition: background .2s;
+    }
+    .login-box button:hover { background: #3730a3; }
+    .login-error {
+      color: #ef4444; font-size: 0.83rem;
+      margin-top: 10px; display: none;
+    }
+
+    /* ── APP SHELL ─────────────────────────────────── */
+    #app { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* ── HEADER ────────────────────────────────────── */
+    .app-header {
+      background: white;
+      padding: 10px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap; z-index: 20;
+    }
+    .header-brand { font-size: 1rem; font-weight: 700; color: #4f46e5; white-space: nowrap; }
+    .date-nav { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .date-nav button {
+      background: #f3f4f6; border: none; border-radius: 7px;
+      width: 34px; height: 34px; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .date-nav button:hover { background: #e5e7eb; }
+    #date-display {
+      font-size: 1.05rem; font-weight: 600;
+      min-width: 210px; text-align: center;
+    }
+    .btn-today {
+      background: #4f46e5; color: white; border: none; border-radius: 7px;
+      padding: 6px 13px; font-size: 0.83rem; cursor: pointer;
+      transition: background .2s; white-space: nowrap;
+    }
+    .btn-today:hover { background: #3730a3; }
+    .filter-wrap { display: flex; align-items: center; gap: 6px; }
+    .filter-wrap label { font-size: 0.82rem; color: #6b7280; }
+    .filter-wrap select {
+      padding: 6px 10px; border: 2px solid #e5e7eb; border-radius: 7px;
+      font-size: 0.88rem; cursor: pointer; background: white;
+    }
+    .btn-icon {
+      background: #f3f4f6; border: none; border-radius: 7px;
+      width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .btn-icon:hover { background: #e5e7eb; }
+    .btn-logout {
+      background: none; border: 1px solid #e5e7eb; border-radius: 7px;
+      padding: 5px 11px; font-size: 0.8rem; color: #9ca3af;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* ── CALENDAR BODY ─────────────────────────────── */
+    .calendar-body { display: flex; flex: 1; overflow: hidden; }
+
+    .time-gutter {
+      width: 52px; flex-shrink: 0; background: #fafafa;
+      border-left: 1px solid #e5e7eb; overflow: hidden;
+      padding-top: 44px;
+    }
+    .time-label {
+      height: 60px; display: flex; align-items: flex-start; justify-content: center;
+      font-size: 0.72rem; color: #9ca3af; padding-top: 4px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .designers-grid { display: flex; flex: 1; overflow-x: auto; overflow-y: auto; }
+    .designer-col { flex: 1; min-width: 155px; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; }
+    .designer-header {
+      height: 44px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.93rem; background: white;
+      border-bottom: 3px solid; position: sticky; top: 0; z-index: 10;
+    }
+    .designer-slots { position: relative; flex: 1; }
+    .slot-line { position: absolute; width: 100%; pointer-events: none; }
+    .slot-line.hour { border-top: 1px solid #e5e7eb; }
+    .slot-line.half { border-top: 1px dashed #f3f4f6; }
+    .slot-click {
+      position: absolute; width: 100%; height: 30px;
+      cursor: pointer; transition: background .1s;
+    }
+    .slot-click:hover { background: rgba(79,70,229,.06); }
+
+    /* ── APPOINTMENTS ──────────────────────────────── */
+    .appointment {
+      position: absolute; right: 3px; left: 3px;
+      border-radius: 7px; padding: 4px 7px; font-size: 0.78rem;
+      cursor: pointer; overflow: hidden; color: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      transition: transform .1s, box-shadow .1s; z-index: 5;
+    }
+    .appointment:hover { transform: scale(1.025); box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
+    .apt-time   { font-size: 0.69rem; opacity: .85; }
+    .apt-client { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .apt-notes  { font-size: 0.69rem; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── MODALS (shared) ───────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.45); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 16px; padding: 26px;
+      width: 380px; max-width: 94vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
+      animation: pop .18s ease;
+    }
+    @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
+    }
+    .modal-header h3 { font-size: 1.05rem; }
+    .btn-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9ca3af; line-height: 1; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 9px 11px; border: 2px solid #e5e7eb;
+      border-radius: 8px; font-size: 0.93rem; font-family: inherit;
+      direction: rtl; transition: border-color .2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { outline: none; border-color: #4f46e5; }
+    .form-group textarea { resize: vertical; min-height: 68px; }
+    .time-row { display: flex; gap: 10px; }
+    .time-row .form-group { flex: 1; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .btn-save {
+      flex: 1; padding: 10px; background: #4f46e5; color: white;
+      border: none; border-radius: 8px; font-size: 0.95rem;
+      cursor: pointer; font-family: inherit; transition: background .2s;
+    }
+    .btn-save:hover { background: #3730a3; }
+    .btn-delete {
+      padding: 10px 15px; background: #fee2e2; color: #ef4444;
+      border: none; border-radius: 8px; font-size: 0.95rem;
+      cursor: pointer; font-family: inherit; transition: background .2s;
+    }
+    .btn-delete:hover { background: #fecaca; }
+
+    /* ── SETTINGS MODAL ────────────────────────────── */
+    .settings-modal { width: 440px; }
+    .settings-modal h3 { color: #4f46e5; }
+    .designer-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid #f3f4f6;
+    }
+    .designer-row:last-of-type { border-bottom: none; }
+    .designer-row input[type="text"] {
+      flex: 1; padding: 8px 10px; border: 2px solid #e5e7eb;
+      border-radius: 7px; font-size: 0.93rem; font-family: inherit;
+      direction: rtl;
+    }
+    .designer-row input[type="text"]:focus { outline: none; border-color: #4f46e5; }
+    .color-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #e5e7eb; cursor: pointer;
+      flex-shrink: 0; transition: transform .15s;
+    }
+    .color-dot:hover { transform: scale(1.15); }
+    .color-picker-hidden { display: none; }
+    .btn-remove-designer {
+      background: none; border: none; color: #d1d5db;
+      font-size: 1.3rem; cursor: pointer; padding: 0 4px;
+      transition: color .15s; flex-shrink: 0; line-height: 1;
+    }
+    .btn-remove-designer:hover { color: #ef4444; }
+    .btn-add-designer {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 2px dashed #d1d5db; border-radius: 8px;
+      padding: 8px 14px; width: 100%; margin-top: 12px;
+      font-size: 0.88rem; color: #9ca3af; cursor: pointer;
+      transition: all .2s; font-family: inherit;
+    }
+    .btn-add-designer:hover { border-color: #4f46e5; color: #4f46e5; }
+    .settings-note {
+      font-size: 0.78rem; color: #9ca3af;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    /* ── EMPTY STATE ───────────────────────────────── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 200px;
+      color: #9ca3af; font-size: 0.9rem; gap: 8px;
+    }
+    .empty-state span:first-child { font-size: 2rem; }
+
+    /* ── MOBILE ────────────────────────────────────── */
+    @media (max-width: 580px) {
+      .header-brand { display: none; }
+      #date-display { font-size: .9rem; min-width: 160px; }
+      .designer-col { min-width: 120px; }
+      .filter-wrap label { display: none; }
+      .settings-modal { width: 95vw; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">📅</div>
+    <h1>יומן פגישות</h1>
+    <p>עיצוב פנים</p>
+    <input type="password" id="pwd-input" placeholder="סיסמה" autocomplete="current-password">
+    <button id="login-btn">כניסה</button>
+    <div class="login-error" id="login-error">סיסמה שגויה, נסה שוב</div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ────────────────────────────────────── -->
+<div id="app">
+  <div class="app-header">
+    <span class="header-brand">יומן פגישות</span>
+    <div class="date-nav">
+      <button id="btn-prev">&#8594;</button>
+      <span id="date-display"></span>
+      <button id="btn-next">&#8592;</button>
+    </div>
+    <button class="btn-today" id="btn-today">היום</button>
+    <div class="filter-wrap">
+      <label>סינון:</label>
+      <select id="designer-filter"></select>
+    </div>
+    <button class="btn-icon" id="btn-settings" title="הגדרות">⚙️</button>
+    <button class="btn-logout" id="btn-logout">יציאה</button>
+  </div>
+
+  <div class="calendar-body">
+    <div class="time-gutter" id="time-gutter"></div>
+    <div class="designers-grid" id="designers-grid"></div>
+  </div>
+</div>
+
+<!-- ── APPOINTMENT MODAL ──────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">פגישה חדשה</h3>
+      <button class="btn-close" id="modal-close">×</button>
+    </div>
+    <div class="form-group">
+      <label>מעצבת</label>
+      <select id="f-designer"></select>
+    </div>
+    <div class="form-group">
+      <label>שם לקוח / פרויקט</label>
+      <input type="text" id="f-client" placeholder="שם הלקוח">
+    </div>
+    <div class="time-row">
+      <div class="form-group">
+        <label>שעת התחלה</label>
+        <input type="time" id="f-start" value="09:00">
+      </div>
+      <div class="form-group">
+        <label>שעת סיום</label>
+        <input type="time" id="f-end" value="10:00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>הערות</label>
+      <textarea id="f-notes" placeholder="כתובת, טלפון, פרטים נוספים..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" id="btn-save">שמירה</button>
+      <button class="btn-delete" id="btn-delete" style="display:none">מחיקה</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SETTINGS MODAL ─────────────────────────────── -->
+<div class="modal-overlay" id="settings-overlay">
+  <div class="modal settings-modal">
+    <div class="modal-header">
+      <h3>⚙️ ניהול מעצבות</h3>
+      <button class="btn-close" id="settings-close">×</button>
+    </div>
+    <div id="designers-list"></div>
+    <button class="btn-add-designer" id="btn-add-designer">
+      <span>＋</span> הוספת מעצבת
+    </button>
+    <p class="settings-note">לחץ על העיגול הצבעוני לשינוי צבע המעצבת</p>
+    <div class="modal-actions">
+      <button class="btn-save" id="settings-save">שמירה</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FIREBASE + APP LOGIC ────────────────────────── -->
+<script type="module">
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getAuth, signInAnonymously, signOut, onAuthStateChanged }
+                                from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import { getFirestore, collection, doc, query, where,
+         onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, getDoc }
+                                from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+/* ════════════════════════════════════════════════
+   ⚙️  שנה כאן רק את הסיסמה
+   ════════════════════════════════════════════════ */
+const APP_PASSWORD = "1234";
+
+const DEFAULT_DESIGNERS = [
+  { id: "1", name: "מעצבת 1", color: "#7c3aed" },
+  { id: "2", name: "מעצבת 2", color: "#2563eb" },
+  { id: "3", name: "מעצבת 3", color: "#059669" },
+];
+
+const START_HOUR = 8;
+const END_HOUR   = 20;
+const HOUR_PX    = 60;
+/* ════════════════════════════════════════════════ */
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyAUtcuAcjrpeOjWZb6LDmRuPgWqV7TeUaE",
+  authDomain:        "calendar-next1.firebaseapp.com",
+  projectId:         "calendar-next1",
+  storageBucket:     "calendar-next1.firebasestorage.app",
+  messagingSenderId: "976426874332",
+  appId:             "1:976426874332:web:df1815e70274f14f6a0b19",
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+/* ─── State ─────────────────────────────────────── */
+let DESIGNERS    = [];
+let currentDate  = today();
+let activeFilter = "all";
+let editingId    = null;
+let unsubscribe  = null;
+let lastApts     = [];
+
+function today() {
+  const d = new Date(); d.setHours(0,0,0,0); return d;
+}
+
+/* ─── Auth ───────────────────────────────────────── */
+document.getElementById("login-btn").addEventListener("click", doLogin);
+document.getElementById("pwd-input").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+document.getElementById("btn-logout").addEventListener("click", () => { if (unsubscribe) unsubscribe(); signOut(auth); });
+
+function doLogin() {
+  const val = document.getElementById("pwd-input").value;
+  const err = document.getElementById("login-error");
+  if (val === APP_PASSWORD) {
+    err.style.display = "none";
+    signInAnonymously(auth).catch(() => {
+      err.textContent = "שגיאת חיבור. בדוק שהאימות האנונימי הופעל ב-Firebase.";
+      err.style.display = "block";
+    });
+  } else {
+    err.style.display = "block";
+    document.getElementById("pwd-input").value = "";
+    document.getElementById("pwd-input").focus();
+  }
+}
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+    initApp();
+  } else {
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+    document.getElementById("pwd-input").value = "";
+  }
+});
+
+/* ─── Init ───────────────────────────────────────── */
+async function initApp() {
+  await loadDesigners();
+  buildTimeGutter();
+  buildGrid();
+  buildFilterSelect();
+  buildModalDesigners();
+  renderDateDisplay();
+  subscribeDay();
+  bindEvents();
+}
+
+function bindEvents() {
+  document.getElementById("btn-prev").addEventListener("click", () => changeDay(-1));
+  document.getElementById("btn-next").addEventListener("click", () => changeDay(1));
+  document.getElementById("btn-today").addEventListener("click", () => {
+    currentDate = today(); renderDateDisplay(); subscribeDay();
+  });
+  document.getElementById("designer-filter").addEventListener("change", e => {
+    activeFilter = e.target.value; buildGrid(); renderApts(lastApts);
+  });
+  // Appointment modal
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("modal-overlay").addEventListener("click", e => {
+    if (e.target === document.getElementById("modal-overlay")) closeModal();
+  });
+  document.getElementById("btn-save").addEventListener("click", saveApt);
+  document.getElementById("btn-delete").addEventListener("click", deleteApt);
+  // Settings modal
+  document.getElementById("btn-settings").addEventListener("click", openSettings);
+  document.getElementById("settings-close").addEventListener("click", closeSettings);
+  document.getElementById("settings-overlay").addEventListener("click", e => {
+    if (e.target === document.getElementById("settings-overlay")) closeSettings();
+  });
+  document.getElementById("settings-save").addEventListener("click", saveSettings);
+  document.getElementById("btn-add-designer").addEventListener("click", addDesignerRow);
+}
+
+/* ─── Designers (Firestore) ─────────────────────── */
+async function loadDesigners() {
+  const ref = doc(db, "settings", "designers");
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    DESIGNERS = snap.data().list;
+  } else {
+    DESIGNERS = DEFAULT_DESIGNERS;
+    await setDoc(ref, { list: DESIGNERS });
+  }
+}
+
+/* ─── Date helpers ───────────────────────────────── */
+function changeDay(delta) {
+  currentDate = new Date(currentDate);
+  currentDate.setDate(currentDate.getDate() + delta);
+  renderDateDisplay(); subscribeDay();
+}
+
+function dateKey(d = currentDate) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function renderDateDisplay() {
+  const days   = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+  const months = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  const d = currentDate;
+  document.getElementById("date-display").textContent =
+    `יום ${days[d.getDay()]}, ${d.getDate()} ב${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/* ─── Build calendar UI ──────────────────────────── */
+function buildTimeGutter() {
+  const g = document.getElementById("time-gutter");
+  g.innerHTML = "";
+  for (let h = START_HOUR; h <= END_HOUR; h++) {
+    const el = document.createElement("div");
+    el.className = "time-label";
+    el.textContent = `${String(h).padStart(2,"0")}:00`;
+    g.appendChild(el);
+  }
+}
+
+function buildGrid() {
+  const grid = document.getElementById("designers-grid");
+  grid.innerHTML = "";
+
+  const visible = visibleDesigners();
+  if (visible.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.innerHTML = "<span>👩‍🎨</span><span>אין מעצבות מוגדרות. לחץ ⚙️ להוספה.</span>";
+    grid.appendChild(empty);
+    return;
+  }
+
+  visible.forEach(d => {
+    const col = document.createElement("div");
+    col.className = "designer-col";
+    col.dataset.id = d.id;
+
+    const hdr = document.createElement("div");
+    hdr.className = "designer-header";
+    hdr.textContent = d.name;
+    hdr.style.borderColor = d.color;
+    hdr.style.color = d.color;
+    col.appendChild(hdr);
+
+    const slots = document.createElement("div");
+    slots.className = "designer-slots";
+    slots.style.height = `${(END_HOUR - START_HOUR) * HOUR_PX}px`;
+
+    for (let h = START_HOUR; h < END_HOUR; h++) {
+      const offset = (h - START_HOUR) * HOUR_PX;
+      const ln = document.createElement("div");
+      ln.className = "slot-line hour"; ln.style.top = `${offset}px`;
+      slots.appendChild(ln);
+      const lh = document.createElement("div");
+      lh.className = "slot-line half"; lh.style.top = `${offset + HOUR_PX/2}px`;
+      slots.appendChild(lh);
+    }
+
+    for (let h = START_HOUR; h < END_HOUR; h++) {
+      for (let half = 0; half < 2; half++) {
+        const zone = document.createElement("div");
+        zone.className = "slot-click";
+        zone.style.top = `${((h - START_HOUR) * 60 + half * 30) / 60 * HOUR_PX}px`;
+        const t = `${String(h).padStart(2,"0")}:${half === 0 ? "00" : "30"}`;
+        zone.addEventListener("click", () => openNew(d.id, t));
+        slots.appendChild(zone);
+      }
+    }
+
+    col.appendChild(slots);
+    grid.appendChild(col);
+  });
+}
+
+function visibleDesigners() {
+  return activeFilter === "all" ? DESIGNERS : DESIGNERS.filter(d => d.id === activeFilter);
+}
+
+function buildFilterSelect() {
+  const sel = document.getElementById("designer-filter");
+  const prev = sel.value;
+  sel.innerHTML = '<option value="all">כל המעצבות</option>';
+  DESIGNERS.forEach(d => {
+    const o = document.createElement("option");
+    o.value = d.id; o.textContent = d.name;
+    sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+function buildModalDesigners() {
+  const sel = document.getElementById("f-designer");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  DESIGNERS.forEach(d => {
+    const o = document.createElement("option");
+    o.value = d.id; o.textContent = d.name;
+    sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+/* ─── Firestore appointments ─────────────────────── */
+function subscribeDay() {
+  if (unsubscribe) unsubscribe();
+  const q = query(collection(db, "appointments"), where("date", "==", dateKey()));
+  unsubscribe = onSnapshot(q, snap => {
+    lastApts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderApts(lastApts);
+  });
+}
+
+function renderApts(apts) {
+  document.querySelectorAll(".appointment").forEach(el => el.remove());
+  const ids = visibleDesigners().map(d => d.id);
+  apts.filter(a => ids.includes(a.designerId)).forEach(apt => {
+    const slots = document.querySelector(`.designer-col[data-id="${apt.designerId}"] .designer-slots`);
+    if (!slots) return;
+    const designer = DESIGNERS.find(d => d.id === apt.designerId);
+    if (!designer) return;
+
+    const s = toMins(apt.startTime) - START_HOUR * 60;
+    const e = toMins(apt.endTime)   - START_HOUR * 60;
+    const top    = (s / 60) * HOUR_PX;
+    const height = Math.max(((e - s) / 60) * HOUR_PX, 28);
+
+    const el = document.createElement("div");
+    el.className = "appointment";
+    el.style.top = `${top}px`;
+    el.style.height = `${height}px`;
+    el.style.background = designer.color;
+    el.innerHTML = `
+      <div class="apt-time">${apt.startTime} – ${apt.endTime}</div>
+      <div class="apt-client">${apt.clientName || ""}</div>
+      ${apt.notes ? `<div class="apt-notes">${apt.notes}</div>` : ""}
+    `;
+    el.addEventListener("click", ev => { ev.stopPropagation(); openEdit(apt); });
+    slots.appendChild(el);
+  });
+}
+
+function toMins(t) {
+  const [h, m] = t.split(":").map(Number); return h * 60 + m;
+}
+
+/* ─── Appointment modal ──────────────────────────── */
+function openNew(designerId, startTime) {
+  editingId = null;
+  document.getElementById("modal-title").textContent = "פגישה חדשה";
+  document.getElementById("f-designer").value = designerId;
+  document.getElementById("f-client").value   = "";
+  document.getElementById("f-start").value    = startTime;
+  const [h, m] = startTime.split(":").map(Number);
+  const eh = Math.min(h + 1, END_HOUR);
+  document.getElementById("f-end").value = `${String(eh).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  document.getElementById("f-notes").value = "";
+  document.getElementById("btn-delete").style.display = "none";
+  document.getElementById("modal-overlay").classList.add("open");
+  setTimeout(() => document.getElementById("f-client").focus(), 80);
+}
+
+function openEdit(apt) {
+  editingId = apt.id;
+  document.getElementById("modal-title").textContent = "עריכת פגישה";
+  document.getElementById("f-designer").value = apt.designerId;
+  document.getElementById("f-client").value   = apt.clientName || "";
+  document.getElementById("f-start").value    = apt.startTime;
+  document.getElementById("f-end").value      = apt.endTime;
+  document.getElementById("f-notes").value    = apt.notes || "";
+  document.getElementById("btn-delete").style.display = "block";
+  document.getElementById("modal-overlay").classList.add("open");
+}
+
+function closeModal() { document.getElementById("modal-overlay").classList.remove("open"); editingId = null; }
+
+async function saveApt() {
+  const client = document.getElementById("f-client").value.trim();
+  if (!client) { document.getElementById("f-client").focus(); return; }
+  const data = {
+    date:       dateKey(),
+    designerId: document.getElementById("f-designer").value,
+    clientName: client,
+    startTime:  document.getElementById("f-start").value,
+    endTime:    document.getElementById("f-end").value,
+    notes:      document.getElementById("f-notes").value.trim(),
+  };
+  try {
+    if (editingId) await updateDoc(doc(db, "appointments", editingId), data);
+    else           await addDoc(collection(db, "appointments"), data);
+    closeModal();
+  } catch (err) {
+    alert("שגיאה בשמירה. בדוק הרשאות Firestore.");
+    console.error(err);
+  }
+}
+
+async function deleteApt() {
+  if (!editingId || !confirm("למחוק את הפגישה?")) return;
+  try { await deleteDoc(doc(db, "appointments", editingId)); closeModal(); }
+  catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+}
+
+/* ─── Settings modal ─────────────────────────────── */
+const PRESET_COLORS = ["#7c3aed","#2563eb","#059669","#dc2626","#d97706","#0891b2","#be185d","#65a30d"];
+
+function openSettings() {
+  renderDesignersList();
+  document.getElementById("settings-overlay").classList.add("open");
+}
+
+function closeSettings() {
+  document.getElementById("settings-overlay").classList.remove("open");
+}
+
+function renderDesignersList() {
+  const list = document.getElementById("designers-list");
+  list.innerHTML = "";
+  // Clone so we can edit without committing immediately
+  const draft = DESIGNERS.map(d => ({ ...d }));
+  list.dataset.draft = JSON.stringify(draft);
+
+  draft.forEach((d, i) => appendDesignerRow(list, d, i));
+}
+
+function appendDesignerRow(list, d, i) {
+  const row = document.createElement("div");
+  row.className = "designer-row";
+  row.dataset.index = i;
+
+  const colorBtn = document.createElement("div");
+  colorBtn.className = "color-dot";
+  colorBtn.style.background = d.color;
+  colorBtn.title = "שנה צבע";
+
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.className = "color-picker-hidden";
+  colorInput.value = d.color;
+  colorInput.addEventListener("input", e => {
+    colorBtn.style.background = e.target.value;
+    updateDraft(list, i, "color", e.target.value);
+  });
+  colorBtn.addEventListener("click", () => colorInput.click());
+
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.value = d.name;
+  nameInput.placeholder = "שם מעצבת";
+  nameInput.addEventListener("input", e => updateDraft(list, i, "name", e.target.value));
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "btn-remove-designer";
+  removeBtn.innerHTML = "×";
+  removeBtn.title = "הסרת מעצבת";
+  removeBtn.addEventListener("click", () => {
+    let draft = JSON.parse(list.dataset.draft);
+    draft.splice(i, 1);
+    list.dataset.draft = JSON.stringify(draft);
+    list.innerHTML = "";
+    draft.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
+  });
+
+  row.appendChild(colorBtn);
+  row.appendChild(colorInput);
+  row.appendChild(nameInput);
+  row.appendChild(removeBtn);
+  list.appendChild(row);
+}
+
+function updateDraft(list, i, key, value) {
+  const draft = JSON.parse(list.dataset.draft);
+  draft[i][key] = value;
+  list.dataset.draft = JSON.stringify(draft);
+}
+
+function addDesignerRow() {
+  const list = document.getElementById("designers-list");
+  const draft = JSON.parse(list.dataset.draft);
+  const newId = String(Date.now());
+  const color = PRESET_COLORS[draft.length % PRESET_COLORS.length];
+  const newD = { id: newId, name: "", color };
+  draft.push(newD);
+  list.dataset.draft = JSON.stringify(draft);
+  appendDesignerRow(list, newD, draft.length - 1);
+  // Focus the new name input
+  setTimeout(() => list.lastElementChild?.querySelector("input[type=text]")?.focus(), 50);
+}
+
+async function saveSettings() {
+  const list  = document.getElementById("designers-list");
+  const draft = JSON.parse(list.dataset.draft).filter(d => d.name.trim() !== "");
+
+  if (draft.length === 0) { alert("יש להגדיר לפחות מעצבת אחת."); return; }
+
+  try {
+    await setDoc(doc(db, "settings", "designers"), { list: draft });
+    DESIGNERS = draft;
+    activeFilter = "all";
+    document.getElementById("designer-filter").value = "all";
+    buildFilterSelect();
+    buildModalDesigners();
+    buildGrid();
+    renderApts(lastApts);
+    closeSettings();
+  } catch (err) {
+    alert("שגיאה בשמירה. בדוק הרשאות Firestore.");
+    console.error(err);
+  }
+}
+</script>
+</body>
+</html>

@@ -514,7 +514,7 @@ function renderDateDisplay() {
     el.textContent = `יום ${DAYS_HE[d.getDay()]}, ${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`;
   } else {
     const days = weekDays();
-    const s = days[0], e = days[6];
+    const s = days[0], e = days[5];
     if (s.getMonth() === e.getMonth()) {
       el.textContent = `${s.getDate()} – ${e.getDate()} ב${MONTHS_HE[s.getMonth()]} ${s.getFullYear()}`;
     } else {
@@ -648,7 +648,7 @@ function buildWeekGrid() {
 function subscribeWeek() {
   if (unsubscribe) unsubscribe();
   const days = weekDays();
-  const from = dateKey(days[0]), to = dateKey(days[6]);
+  const from = dateKey(days[0]), to = dateKey(days[5]);
   const q = query(collection(db, "appointments"),
     where("date", ">=", from), where("date", "<=", to));
   unsubscribe = onSnapshot(q, snap => {

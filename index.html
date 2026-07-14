@@ -532,7 +532,7 @@ function weekStart(d = currentDate) {
 }
 function weekDays(d = currentDate) {
   const s = weekStart(d);
-  return Array.from({length: 7}, (_, i) => {
+  return Array.from({length: 6}, (_, i) => {
     const day = new Date(s); day.setDate(s.getDate() + i); return day;
   });
 }

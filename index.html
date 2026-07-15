@@ -844,17 +844,45 @@ function subscribeWeek() {
 function renderWeekApts(apts) {
   document.querySelectorAll("#week-grid .appointment").forEach(el => el.remove());
   const filterIds = activeFilter === "all" ? DESIGNERS.map(d => d.id) : [activeFilter];
-  apts.filter(a => filterIds.includes(a.designerId)).forEach(apt => {
-    const slots = document.querySelector(`#week-grid .week-col[data-date="${apt.date}"] .col-slots`);
+  const visible   = apts.filter(a => filterIds.includes(a.designerId));
+
+  // Group by date
+  const byDate = {};
+  visible.forEach(apt => { (byDate[apt.date] = byDate[apt.date] || []).push(apt); });
+
+  Object.entries(byDate).forEach(([date, dayApts]) => {
+    const slots = document.querySelector(`#week-grid .week-col[data-date="${date}"] .col-slots`);
     if (!slots) return;
-    const designer = DESIGNERS.find(d => d.id === apt.designerId);
-    if (!designer) return;
-    placeAppointment(slots, apt, designer.color, true);
+    const layout = computeOverlapLayout(dayApts);
+    dayApts.forEach(apt => {
+      const designer = DESIGNERS.find(d => d.id === apt.designerId);
+      if (!designer) return;
+      const { col, total } = layout.get(apt.id);
+      placeAppointment(slots, apt, designer.color, true, col, total);
+    });
   });
 }
 
+function computeOverlapLayout(apts) {
+  const sorted = [...apts].sort((a, b) => toMins(a.startTime) - toMins(b.startTime));
+  const cols   = []; // cols[i] = end time of last apt in column i
+  const result = new Map();
+  sorted.forEach(apt => {
+    const start = toMins(apt.startTime);
+    const end   = toMins(apt.endTime);
+    let placed  = false;
+    for (let i = 0; i < cols.length; i++) {
+      if (start >= cols[i]) { cols[i] = end; result.set(apt.id, { col: i, total: 0 }); placed = true; break; }
+    }
+    if (!placed) { cols.push(end); result.set(apt.id, { col: cols.length - 1, total: 0 }); }
+  });
+  const total = cols.length;
+  result.forEach(v => { v.total = total; });
+  return result;
+}
+
 /* ─── Shared appointment renderer ────────────────── */
-function placeAppointment(container, apt, color, showDesigner) {
+function placeAppointment(container, apt, color, showDesigner, col = 0, total = 1) {
   const s = toMins(apt.startTime) - START_HOUR * 60;
   const e = toMins(apt.endTime)   - START_HOUR * 60;
   const top    = (s / 60) * HOUR_PX;
@@ -862,7 +890,17 @@ function placeAppointment(container, apt, color, showDesigner) {
 
   const el = document.createElement("div");
   el.className = "appointment";
-  el.style.top = `${top}px`; el.style.height = `${height}px`; el.style.background = color;
+  el.style.top    = `${top}px`;
+  el.style.height = `${height}px`;
+  el.style.background = color;
+
+  if (total > 1) {
+    const pct = 100 / total;
+    el.style.right = `${col * pct}%`;
+    el.style.width = `calc(${pct}% - 2px)`;
+    el.style.left  = "auto";
+  }
+
   const designer = DESIGNERS.find(d => d.color === color);
   el.innerHTML = `
     <div class="apt-time">${apt.startTime} – ${apt.endTime}</div>

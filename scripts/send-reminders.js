@@ -1,4 +1,6 @@
 const admin = require('firebase-admin');
+const fs    = require('fs');
+const path  = require('path');
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 const app = admin.initializeApp({ credential: admin.credential.cert(serviceAccount), projectId: 'calendar-next1' });
@@ -21,14 +23,40 @@ function toWhatsAppId(phone) {
   return (digits.startsWith('0') ? '972' + digits.slice(1) : digits) + '@c.us';
 }
 
-async function sendMessage(phone, message) {
-  const url = `https://api.green-api.com/waInstance${GREEN_ID}/sendMessage/${GREEN_TOKEN}`;
-  const res = await fetch(url, {
+const BASE_URL  = `https://7107.api.greenapi.com/waInstance${GREEN_ID}`;
+const LOGO_PATH = path.join(__dirname, '..', 'Loogo-aviya.jpg');
+
+async function sendText(chatId, message) {
+  const res = await fetch(`${BASE_URL}/sendMessage/${GREEN_TOKEN}`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ chatId: toWhatsAppId(phone), message })
+    body:    JSON.stringify({ chatId, message })
   });
   return res.json();
+}
+
+async function sendLogo(chatId) {
+  if (!fs.existsSync(LOGO_PATH)) { console.log('  Logo file not found'); return; }
+  const form = new FormData();
+  form.append('chatId', chatId);
+  form.append('caption', '');
+  const buf  = fs.readFileSync(LOGO_PATH);
+  form.append('file', new Blob([buf], { type: 'image/jpeg' }), 'aviya-kitchen.jpg');
+  const res = await fetch(`${BASE_URL}/sendFileByUpload/${GREEN_TOKEN}`, {
+    method: 'POST',
+    body:   form
+  });
+  const result = await res.json();
+  console.log('  Logo result:', JSON.stringify(result));
+  return result;
+}
+
+async function sendMessage(phone, message) {
+  const chatId = toWhatsAppId(phone);
+  const textResult = await sendText(chatId, message);
+  console.log('  Text result:', JSON.stringify(textResult));
+  await new Promise(r => setTimeout(r, 1000));
+  await sendLogo(chatId);
 }
 
 async function main() {

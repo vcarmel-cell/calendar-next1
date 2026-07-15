@@ -21,12 +21,19 @@ function toWhatsAppId(phone) {
   return (digits.startsWith('0') ? '972' + digits.slice(1) : digits) + '@c.us';
 }
 
+const LOGO_URL = 'https://vcarmel-cell.github.io/calendar-next1/Loogo-aviya.jpg';
+
 async function sendMessage(phone, message) {
-  const url  = `https://api.green-api.com/waInstance${GREEN_ID}/sendMessage/${GREEN_TOKEN}`;
-  const res  = await fetch(url, {
+  const url = `https://api.green-api.com/waInstance${GREEN_ID}/sendFileByUrl/${GREEN_TOKEN}`;
+  const res = await fetch(url, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ chatId: toWhatsAppId(phone), message })
+    body:    JSON.stringify({
+      chatId:   toWhatsAppId(phone),
+      urlFile:  LOGO_URL,
+      fileName: 'aviya-kitchen.jpg',
+      caption:  message
+    })
   });
   return res.json();
 }

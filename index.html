@@ -494,6 +494,9 @@
     <div class="modal-actions">
       <button class="btn-save" id="settings-save">שמירה</button>
     </div>
+    <div class="modal-actions" style="margin-top:8px">
+      <button class="btn-save" style="background:var(--gold)" onclick="downloadBackup()">⬇ הורד גיבוי</button>
+    </div>
     <div class="trash-section">
       <button class="trash-toggle-btn" onclick="toggleTrash()">🗑️ פח מחזור</button>
     </div>
@@ -1422,6 +1425,29 @@ window.permanentDeleteApt = async function(id) {
     await deleteDoc(doc(db, "deleted_appointments", id));
     await loadTrashApts();
   } catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+};
+
+window.downloadBackup = async function() {
+  try {
+    const [aptsSnap, settSnap] = await Promise.all([
+      getDocs(collection(db, "appointments")),
+      getDocs(collection(db, "settings"))
+    ]);
+    const data = {
+      date: new Date().toISOString(),
+      appointments: aptsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      settings: {}
+    };
+    settSnap.docs.forEach(d => { data.settings[d.id] = d.data(); });
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) { alert("שגיאה בגיבוי."); console.error(err); }
 };
 
 async function saveSettings() {

@@ -440,6 +440,12 @@
       <label>סיכום פגישה</label>
       <textarea id="f-summary" placeholder="מה סוכם, צעדים הבאים..."></textarea>
     </div>
+    <div class="form-group" style="margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.88rem;color:var(--text)">
+        <input type="checkbox" id="f-consent" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer">
+        הלקוח מאשר קבלת תזכורות בווטסאפ
+      </label>
+    </div>
     <div class="modal-actions">
       <button class="btn-save" id="btn-save">שמירה</button>
       <button class="btn-delete" id="btn-delete" style="display:none">מחיקה</button>
@@ -970,6 +976,7 @@ function openNew(designerId, startTime, dateStr) {
   document.getElementById("f-address").value  = "";
   document.getElementById("f-notes").value    = "";
   document.getElementById("f-summary").value  = "";
+  document.getElementById("f-consent").checked = false;
   document.getElementById("btn-delete").style.display = "none";
   updateAddressField();
   updateWhatsAppBtn();
@@ -986,9 +993,10 @@ function openEdit(apt) {
   document.getElementById("f-phone").value    = apt.phone || "";
   setTime("f-start", apt.startTime);
   setTime("f-end",   apt.endTime);
-  document.getElementById("f-address").value  = apt.address || "";
-  document.getElementById("f-notes").value    = apt.notes || "";
-  document.getElementById("f-summary").value  = apt.summary || "";
+  document.getElementById("f-address").value   = apt.address || "";
+  document.getElementById("f-notes").value     = apt.notes || "";
+  document.getElementById("f-summary").value   = apt.summary || "";
+  document.getElementById("f-consent").checked = apt.whatsappConsent || false;
   document.getElementById("btn-delete").style.display = "block";
   updateAddressField();
   updateWhatsAppBtn();
@@ -1037,9 +1045,10 @@ async function saveApt() {
     phone:      document.getElementById("f-phone").value.trim(),
     startTime:  getTime("f-start"),
     endTime:    getTime("f-end"),
-    address:    document.getElementById("f-address").value.trim(),
-    notes:      document.getElementById("f-notes").value.trim(),
-    summary:    document.getElementById("f-summary").value.trim(),
+    address:         document.getElementById("f-address").value.trim(),
+    notes:           document.getElementById("f-notes").value.trim(),
+    summary:         document.getElementById("f-summary").value.trim(),
+    whatsappConsent: document.getElementById("f-consent").checked,
   };
   const isNew = !editingId;
   try {

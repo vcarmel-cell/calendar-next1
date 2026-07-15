@@ -2,7 +2,7 @@ name: WhatsApp Daily Reminders
 
 on:
   schedule:
-    - cron: '0 18 * * *'   # 21:00 שעון ישראל קיץ (18:00 UTC)
+    - cron: '0 13 * * *'   # 16:00 שעון ישראל קיץ (13:00 UTC)
   workflow_dispatch:
 
 jobs:

@@ -546,10 +546,14 @@ import { getFirestore, collection, doc, query, where,
 const APP_PASSWORD   = "1234";   // ← סיסמת כניסה לאפליקציה
 const ADMIN_PASSWORD = "0506868448!"; // ← סיסמת כניסה להגדרות
 
-// ─── EmailJS — מלא את הפרטים אחרי ההרשמה ───────────
+// ─── EmailJS ─────────────────────────────────────────
 const EMAILJS_PUBLIC_KEY  = "6d_bWSpIY9nijK9fU";
 const EMAILJS_SERVICE_ID  = "service_yp9sxfn";
 const EMAILJS_TEMPLATE_ID = "template_g12apr8";
+// ─── Green API (WhatsApp) ─────────────────────────────
+const GREEN_API_ID    = "710722683819";
+const GREEN_API_TOKEN = "4b73f7c5d7124f8abef1a0785a7fe884f6d068dc5c1a470d88";
+const GREEN_API_URL   = `https://7107.api.greenapi.com/waInstance${GREEN_API_ID}/sendMessage/${GREEN_API_TOKEN}`;
 // ─────────────────────────────────────────────────────
 
 const DEFAULT_DESIGNERS = [
@@ -1060,7 +1064,10 @@ async function saveApt() {
   try {
     if (editingId) await updateDoc(doc(db, "appointments", editingId), data);
     else           await addDoc(collection(db, "appointments"), data);
-    if (isNew) sendEmailNotification(data);
+    if (isNew) {
+      sendEmailNotification(data);
+      sendWhatsAppConfirmation(data);
+    }
     closeModal();
   } catch (err) { alert("שגיאה בשמירה."); console.error(err); }
 }
@@ -1087,6 +1094,27 @@ function sendEmailNotification(data) {
     end_time:     data.endTime,
     notes:        data.notes || "—",
   }).catch(err => console.error("EmailJS error:", err));
+}
+
+function sendWhatsAppConfirmation(data) {
+  if (!data.whatsappConsent || !data.phone) return;
+  const digits  = data.phone.replace(/\D/g, '');
+  const chatId  = (digits.startsWith('0') ? '972' + digits.slice(1) : digits) + '@c.us';
+  const designer = DESIGNERS.find(d => d.id === data.designerId);
+  const parts    = data.date.split('-');
+  const dateObj  = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  const days     = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const months   = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const dateStr  = `יום ${days[dateObj.getDay()]}, ${dateObj.getDate()} ב${months[+parts[1]-1]}`;
+  const isInstall = designer?.name?.includes('התקנות');
+  const message = isInstall
+    ? `שלום ${data.clientName} :)\n\nהתקנתך נקבעה ✓\n* ${dateStr}\n* שעה: ${data.startTime} - ${data.endTime}${data.address ? `\n* כתובת: ${data.address}` : ''}\n\nטלפון לשינויים: 050-7141720\nWaze: https://waze.com/ul/hsv8s54crr\n\nאביה Kitchen`
+    : `שלום ${data.clientName} :)\n\nפגישתך נקבעה ✓\n* ${dateStr}\n* שעה: ${data.startTime} - ${data.endTime}\n* עם ${designer?.name || ''}\n\nטלפון לשינויים: 050-7141720\nWaze: https://waze.com/ul/hsv8s54crr\n\nאביה Kitchen`;
+  fetch(GREEN_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chatId, message })
+  }).catch(err => console.error('WhatsApp confirmation error:', err));
 }
 
 async function deleteApt() {

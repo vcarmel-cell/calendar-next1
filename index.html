@@ -267,6 +267,14 @@
       transition: color .15s; flex-shrink: 0; line-height: 1;
     }
     .btn-remove-designer:hover { color: #c0392b; }
+    .designer-order-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .btn-order {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-size: .7rem; cursor: pointer; padding: 1px 5px; border-radius: 4px;
+      line-height: 1.4; transition: all .15s; font-family: inherit;
+    }
+    .btn-order:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-order:disabled { opacity: .25; cursor: default; }
     .btn-add-designer {
       display: flex; align-items: center; gap: 6px;
       background: none; border: 2px dashed var(--border); border-radius: 9px;
@@ -1169,7 +1177,9 @@ function renderDesignersList() {
 }
 
 function appendDesignerRow(list, d, i) {
-  const row = document.createElement("div"); row.className = "designer-row"; row.dataset.index = i;
+  const draft      = JSON.parse(list.dataset.draft);
+  const total      = draft.active.length;
+  const row        = document.createElement("div"); row.className = "designer-row"; row.dataset.index = i;
   const colorBtn   = document.createElement("div"); colorBtn.className = "color-dot"; colorBtn.style.background = d.color; colorBtn.title = "שנה צבע";
   const colorInput = document.createElement("input"); colorInput.type = "color"; colorInput.className = "color-picker-hidden"; colorInput.value = d.color;
   colorInput.addEventListener("input", e => { colorBtn.style.background = e.target.value; updateDraft(list, i, "color", e.target.value); });
@@ -1181,20 +1191,37 @@ function appendDesignerRow(list, d, i) {
   emailInput.addEventListener("input", e => updateDraft(list, i, "email", e.target.value));
   const removeBtn = document.createElement("button"); removeBtn.className = "btn-remove-designer"; removeBtn.innerHTML = "×";
   removeBtn.addEventListener("click", () => {
-    let draft = JSON.parse(list.dataset.draft);
-    const removed = draft.active.splice(i, 1)[0];
+    let dr = JSON.parse(list.dataset.draft);
+    const removed = dr.active.splice(i, 1)[0];
     removed.deletedAt = new Date().toISOString();
-    draft.deleted.push(removed);
-    list.dataset.draft = JSON.stringify(draft);
+    dr.deleted.push(removed);
+    list.dataset.draft = JSON.stringify(dr);
     list.innerHTML = "";
-    draft.active.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
+    dr.active.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
     renderTrashDesigners();
   });
+  // Order buttons
+  const orderWrap = document.createElement("div"); orderWrap.className = "designer-order-btns";
+  const upBtn   = document.createElement("button"); upBtn.className = "btn-order"; upBtn.textContent = "▲"; upBtn.disabled = i === 0;
+  const downBtn = document.createElement("button"); downBtn.className = "btn-order"; downBtn.textContent = "▼"; downBtn.disabled = i === total - 1;
+  upBtn.addEventListener("click",   () => moveDesigner(list, i, -1));
+  downBtn.addEventListener("click", () => moveDesigner(list, i,  1));
+  orderWrap.appendChild(upBtn); orderWrap.appendChild(downBtn);
   const nameWrap = document.createElement("div");
   nameWrap.style.cssText = "flex:1;display:flex;flex-direction:column;gap:0";
   nameWrap.appendChild(nameInput); nameWrap.appendChild(emailInput);
-  row.appendChild(colorBtn); row.appendChild(colorInput); row.appendChild(nameWrap); row.appendChild(removeBtn);
+  row.appendChild(orderWrap); row.appendChild(colorBtn); row.appendChild(colorInput); row.appendChild(nameWrap); row.appendChild(removeBtn);
   list.appendChild(row);
+}
+
+function moveDesigner(list, i, dir) {
+  const draft = JSON.parse(list.dataset.draft);
+  const j = i + dir;
+  if (j < 0 || j >= draft.active.length) return;
+  [draft.active[i], draft.active[j]] = [draft.active[j], draft.active[i]];
+  list.dataset.draft = JSON.stringify(draft);
+  list.innerHTML = "";
+  draft.active.forEach((d, ii) => appendDesignerRow(list, d, ii));
 }
 
 function updateDraft(list, i, key, value) {

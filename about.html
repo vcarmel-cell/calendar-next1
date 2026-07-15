@@ -1,0 +1,327 @@
+<title>אביה Kitchen — מערכת יומן פגישות</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg:       #FAF6F0;
+    --card:     #FFFFFF;
+    --text:     #1E120A;
+    --muted:    #7A5C42;
+    --border:   #E8D9C8;
+    --gold:     #B8842A;
+    --brown:    #6B3A1F;
+    --sage:     #5A7A50;
+    --accent-bg:#FFF4E6;
+    --tag-bg:   #F0E4D4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:       #1A0F08;
+      --card:     #251509;
+      --text:     #F0E4D4;
+      --muted:    #A07850;
+      --border:   #3A2010;
+      --gold:     #D4A050;
+      --brown:    #C4956A;
+      --sage:     #7AA870;
+      --accent-bg:#1F1008;
+      --tag-bg:   #2A1808;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#FAF6F0;--card:#FFFFFF;--text:#1E120A;--muted:#7A5C42;
+    --border:#E8D9C8;--gold:#B8842A;--brown:#6B3A1F;--sage:#5A7A50;
+    --accent-bg:#FFF4E6;--tag-bg:#F0E4D4;
+  }
+  :root[data-theme="dark"] {
+    --bg:#1A0F08;--card:#251509;--text:#F0E4D4;--muted:#A07850;
+    --border:#3A2010;--gold:#D4A050;--brown:#C4956A;--sage:#7AA870;
+    --accent-bg:#1F1008;--tag-bg:#2A1808;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    direction: rtl;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    background: var(--brown);
+    color: #F5E8D8;
+    padding: 48px 32px 40px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 400;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+    text-wrap: balance;
+  }
+  .page-header p {
+    font-size: 1rem;
+    opacity: .75;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-size: .8rem;
+  }
+  .gold-line {
+    width: 48px; height: 2px;
+    background: var(--gold);
+    margin: 18px auto;
+    opacity: .8;
+  }
+  .page-header .sub {
+    font-size: .95rem;
+    opacity: .85;
+    max-width: 480px;
+    margin: 0 auto;
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+
+  /* ── MAIN ── */
+  .page-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-label {
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ── FEATURE GRID ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 18px 16px;
+  }
+  .feature-card .icon {
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .feature-card h3 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+  .feature-card p {
+    font-size: .82rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  /* ── HIGHLIGHT ROW ── */
+  .highlight-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .highlight-card {
+    background: var(--accent-bg);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 20px 18px;
+    text-align: center;
+  }
+  .highlight-card .big { font-size: 2rem; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .highlight-card .label { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TECH LIST ── */
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .tag {
+    background: var(--tag-bg);
+    color: var(--brown);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: .78rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    text-align: center;
+    padding: 32px 20px 40px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .8rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .page-footer strong { color: var(--gold); }
+
+  @media (max-width: 500px) {
+    .page-header { padding: 36px 20px 30px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .highlight-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<div class="page-header">
+  <p>מערכת ניהול</p>
+  <div class="gold-line"></div>
+  <h1>יומן פגישות דיגיטלי</h1>
+  <p class="sub">פתרון מותאם לעסקי עיצוב ומטבחים — ניהול כל היומנים, הלקוחות והתזכורות ממקום אחד, מכל מכשיר</p>
+</div>
+
+<div class="page-body">
+
+  <!-- HIGHLIGHTS -->
+  <div class="section-label">במבט אחד</div>
+  <div class="highlight-row">
+    <div class="highlight-card">
+      <div class="big">∞</div>
+      <div class="label">יומנים מקבילים</div>
+    </div>
+    <div class="highlight-card">
+      <div class="big">24/7</div>
+      <div class="label">גישה מכל מכשיר</div>
+    </div>
+    <div class="highlight-card">
+      <div class="big">⚡</div>
+      <div class="label">סנכרון בזמן אמת</div>
+    </div>
+    <div class="highlight-card">
+      <div class="big">🔒</div>
+      <div class="label">מאובטח בסיסמה</div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="section-label">יומן וניהול פגישות</div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="icon">📅</span>
+      <h3>תצוגה יומית ושבועית</h3>
+      <p>מעבר חלק בין תצוגת יום (כל היומנים זה לצד זה) לתצוגת שבוע (ימים א׳–ו׳)</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">👥</span>
+      <h3>יומנים מרובים</h3>
+      <p>כל חבר צוות עם יומן צבעוני משלו. ניתן לסנן ולראות יומן ספציפי בלבד</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">⏰</span>
+      <h3>בחירת שעות חכמה</h3>
+      <p>שעת התחלה וסיום בקפיצות 15 דקות. זיהוי וטיפול חכם בפגישות חופפות</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📝</span>
+      <h3>פרטי פגישה מלאים</h3>
+      <p>שם לקוח, טלפון, הערות, סיכום פגישה, כתובת התקנה (ליומן התקנות)</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🔍</span>
+      <h3>חיפוש לקוחות</h3>
+      <p>חיפוש לפי שם לקוח או מספר טלפון. לחיצה על תוצאה מנווטת ישירות לפגישה</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">♻️</span>
+      <h3>פח מחזור</h3>
+      <p>פגישות ויומנים שנמחקו עוברים לפח — ניתן לשחזר בכל עת, לא יאבד מידע</p>
+    </div>
+  </div>
+
+  <!-- COMMUNICATION -->
+  <div class="section-label">תקשורת ותזכורות</div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="icon">📲</span>
+      <h3>תזכורת WhatsApp ללקוח</h3>
+      <p>כפתור אחד שולח הודעה מוכנה עם פרטי הפגישה, טלפון לשינויים וקישור Waze</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🔧</span>
+      <h3>הודעה מותאמת להתקנות</h3>
+      <p>יומן ״התקנות״ שולח הודעת WhatsApp בפורמט שונה הכולל כתובת ההתקנה</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">✉️</span>
+      <h3>מייל אוטומטי לצוות</h3>
+      <p>בכל פגישה חדשה — נשלח מייל אוטומטי לבעל/ת היומן הרלוונטי עם כל הפרטים</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">✅</span>
+      <h3>אישור הסכמה לתזכורות</h3>
+      <p>שדה אישור בטופס הפגישה — תזכורות אוטומטיות ישלחו רק ללקוחות שאישרו</p>
+    </div>
+  </div>
+
+  <!-- MANAGEMENT -->
+  <div class="section-label">ניהול ואבטחה</div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="icon">⚙️</span>
+      <h3>דף הגדרות מנהל</h3>
+      <p>עדכון שמות, צבעים, מיילים וסדר היומנים — מאובטח בסיסמת מנהל נפרדת</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">💾</span>
+      <h3>גיבוי ושחזור</h3>
+      <p>הורדת גיבוי JSON בלחיצה אחת. שחזור מלא מקובץ גיבוי כולל כל הפגישות וההגדרות</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🌐</span>
+      <h3>סביבת DEMO</h3>
+      <p>סביבת הדגמה מקבילה ומבודדת לחלוטין — מושלמת להצגה ללקוחות חדשים</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📱</span>
+      <h3>מותאם למובייל</h3>
+      <p>עובד על טלפון, טאבלט ומחשב — ממשק נוח בכל גודל מסך, ממוקד עברית RTL</p>
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <div class="section-label">תשתית טכנית</div>
+  <div class="tech-list">
+    <span class="tag">Firebase Firestore</span>
+    <span class="tag">סנכרון בזמן אמת</span>
+    <span class="tag">GitHub Pages</span>
+    <span class="tag">EmailJS</span>
+    <span class="tag">WhatsApp wa.me</span>
+    <span class="tag">אחסון חינמי</span>
+    <span class="tag">ללא שרת</span>
+    <span class="tag">גיבוי JSON</span>
+    <span class="tag">אבטחה בשכבות</span>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <strong>אביה Kitchen</strong> · מטבחים · שיש · ארונות אמבטיה<br>
+  מערכת יומן פגישות מותאמת אישית
+</div>

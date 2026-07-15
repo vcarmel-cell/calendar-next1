@@ -1190,7 +1190,6 @@ function openSettings()  {
   renderDesignersList();
   document.getElementById("settings-overlay").classList.add("open");
 }
-window.closeTrash = function() { document.getElementById("trash-overlay").classList.remove("open"); };
 function closeSettings() { document.getElementById("settings-overlay").classList.remove("open"); }
 
 function renderDesignersList() {
@@ -1267,8 +1266,14 @@ function addDesignerRow() {
 
 /* ─── Trash / Recycle bin ────────────────────────── */
 window.toggleTrash = function() {
+  document.getElementById("settings-overlay").classList.remove("open");
   showTrashTab("designers");
   document.getElementById("trash-overlay").classList.add("open");
+};
+
+window.closeTrash = function() {
+  document.getElementById("trash-overlay").classList.remove("open");
+  openSettings();
 };
 
 window.showTrashTab = function(tab) {

@@ -494,8 +494,10 @@
     <div class="modal-actions">
       <button class="btn-save" id="settings-save">שמירה</button>
     </div>
-    <div class="modal-actions" style="margin-top:8px">
+    <div class="modal-actions" style="margin-top:8px;gap:8px">
       <button class="btn-save" style="background:var(--gold)" onclick="downloadBackup()">⬇ הורד גיבוי</button>
+      <button class="btn-save" style="background:#6B8E5A" onclick="document.getElementById('restore-file-input').click()">⬆ שחזר מגיבוי</button>
+      <input type="file" id="restore-file-input" accept=".json" style="display:none" onchange="restoreBackup(this)">
     </div>
     <div class="trash-section">
       <button class="trash-toggle-btn" onclick="toggleTrash()">🗑️ פח מחזור</button>
@@ -1448,6 +1450,44 @@ window.downloadBackup = async function() {
     a.click();
     URL.revokeObjectURL(url);
   } catch (err) { alert("שגיאה בגיבוי."); console.error(err); }
+};
+
+window.restoreBackup = async function(input) {
+  const file = input.files[0];
+  input.value = "";
+  if (!file) return;
+
+  const text = await file.text();
+  let data;
+  try { data = JSON.parse(text); } catch { alert("קובץ לא תקין."); return; }
+
+  const aptCount = data.appointments?.length || 0;
+  if (!confirm(`שחזור מגיבוי מתאריך ${(data.date || "").slice(0,10)}\n${aptCount} פגישות\n\nכל הפגישות הקיימות יימחקו ויוחלפו בגיבוי.\n\nלהמשיך?`)) return;
+
+  try {
+    // Delete existing appointments
+    const existingSnap = await getDocs(collection(db, "appointments"));
+    await Promise.all(existingSnap.docs.map(d => deleteDoc(doc(db, "appointments", d.id))));
+
+    // Restore appointments from backup
+    await Promise.all((data.appointments || []).map(apt => {
+      const { id, ...aptData } = apt;
+      return setDoc(doc(db, "appointments", id), aptData);
+    }));
+
+    // Restore settings
+    if (data.settings) {
+      await Promise.all(Object.entries(data.settings).map(([key, val]) =>
+        setDoc(doc(db, "settings", key), val)
+      ));
+    }
+
+    alert(`שוחזרו ${aptCount} פגישות בהצלחה.`);
+    closeSettings();
+    await loadDesigners();
+    buildFilterSelect(); buildModalDesigners();
+    rebuildAndSubscribe();
+  } catch (err) { alert("שגיאה בשחזור."); console.error(err); }
 };
 
 async function saveSettings() {

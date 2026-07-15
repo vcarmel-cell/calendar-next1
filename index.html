@@ -495,18 +495,24 @@
       <button class="btn-save" id="settings-save">שמירה</button>
     </div>
     <div class="trash-section">
-      <button class="trash-toggle-btn" id="trash-toggle-btn" onclick="toggleTrash()">
-        <span id="trash-arrow">▸</span> פח מחזור
-      </button>
-      <div class="trash-panel" id="trash-panel" style="display:none">
-        <div class="trash-tabs">
-          <button class="trash-tab active" id="trash-tab-designers" onclick="showTrashTab('designers')">יומנים שנמחקו</button>
-          <button class="trash-tab" id="trash-tab-apts" onclick="showTrashTab('apts')">פגישות שנמחקו</button>
-        </div>
-        <div id="trash-designers-list"></div>
-        <div id="trash-apts-list" style="display:none"></div>
-      </div>
+      <button class="trash-toggle-btn" onclick="toggleTrash()">🗑️ פח מחזור</button>
     </div>
+  </div>
+</div>
+
+<!-- ── TRASH MODAL ─────────────────────────────────── -->
+<div class="modal-overlay" id="trash-overlay">
+  <div class="modal settings-modal">
+    <div class="modal-header">
+      <h3>🗑️ פח מחזור</h3>
+      <button class="btn-close" onclick="closeTrash()">×</button>
+    </div>
+    <div class="trash-tabs">
+      <button class="trash-tab active" id="trash-tab-designers" onclick="showTrashTab('designers')">יומנים שנמחקו</button>
+      <button class="trash-tab" id="trash-tab-apts" onclick="showTrashTab('apts')">פגישות שנמחקו</button>
+    </div>
+    <div id="trash-designers-list" style="margin-top:10px"></div>
+    <div id="trash-apts-list" style="display:none;margin-top:10px"></div>
   </div>
 </div>
 
@@ -1182,10 +1188,9 @@ const PRESET_COLORS = ["#8B4513","#C4956A","#6B8E5A","#A0522D","#CD853F","#8B735
 
 function openSettings()  {
   renderDesignersList();
-  document.getElementById("trash-panel").style.display = "none";
-  document.getElementById("trash-arrow").textContent = "▸";
   document.getElementById("settings-overlay").classList.add("open");
 }
+function closeTrash() { document.getElementById("trash-overlay").classList.remove("open"); }
 function closeSettings() { document.getElementById("settings-overlay").classList.remove("open"); }
 
 function renderDesignersList() {
@@ -1262,12 +1267,8 @@ function addDesignerRow() {
 
 /* ─── Trash / Recycle bin ────────────────────────── */
 window.toggleTrash = function() {
-  const panel = document.getElementById("trash-panel");
-  const arrow = document.getElementById("trash-arrow");
-  const open  = panel.style.display === "none";
-  panel.style.display = open ? "" : "none";
-  arrow.textContent   = open ? "▾" : "▸";
-  if (open) { renderTrashDesigners(); }
+  showTrashTab("designers");
+  document.getElementById("trash-overlay").classList.add("open");
 };
 
 window.showTrashTab = function(tab) {
@@ -1276,6 +1277,7 @@ window.showTrashTab = function(tab) {
   document.getElementById("trash-tab-designers").classList.toggle("active", tab === "designers");
   document.getElementById("trash-tab-apts").classList.toggle("active", tab === "apts");
   if (tab === "apts") loadTrashApts();
+  else renderTrashDesigners();
 };
 
 function renderTrashDesigners() {

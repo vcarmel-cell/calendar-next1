@@ -1190,7 +1190,7 @@ function openSettings()  {
   renderDesignersList();
   document.getElementById("settings-overlay").classList.add("open");
 }
-function closeTrash() { document.getElementById("trash-overlay").classList.remove("open"); }
+window.closeTrash = function() { document.getElementById("trash-overlay").classList.remove("open"); };
 function closeSettings() { document.getElementById("settings-overlay").classList.remove("open"); }
 
 function renderDesignersList() {

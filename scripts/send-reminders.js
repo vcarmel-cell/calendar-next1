@@ -21,39 +21,14 @@ function toWhatsAppId(phone) {
   return (digits.startsWith('0') ? '972' + digits.slice(1) : digits) + '@c.us';
 }
 
-const BASE_URL = `https://7107.api.greenapi.com/waInstance${GREEN_ID}`;
-
-async function sendText(chatId, message) {
-  const res = await fetch(`${BASE_URL}/sendMessage/${GREEN_TOKEN}`, {
+async function sendMessage(phone, message) {
+  const url = `https://7107.api.greenapi.com/waInstance${GREEN_ID}/sendMessage/${GREEN_TOKEN}`;
+  const res = await fetch(url, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ chatId, message })
+    body:    JSON.stringify({ chatId: toWhatsAppId(phone), message })
   });
   return res.json();
-}
-
-async function sendLogo(chatId) {
-  const res = await fetch(`${BASE_URL}/sendFileByUrl/${GREEN_TOKEN}`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({
-      chatId,
-      urlFile:  'https://raw.githubusercontent.com/vcarmel-cell/calendar-next1/main/Loogo-aviya.jpg',
-      fileName: 'aviya-kitchen.jpg',
-      caption:  ''
-    })
-  });
-  const result = await res.json();
-  console.log('  Logo result:', JSON.stringify(result));
-  return result;
-}
-
-async function sendMessage(phone, message) {
-  const chatId = toWhatsAppId(phone);
-  const textResult = await sendText(chatId, message);
-  console.log('  Text result:', JSON.stringify(textResult));
-  await new Promise(r => setTimeout(r, 1000));
-  await sendLogo(chatId);
 }
 
 async function main() {

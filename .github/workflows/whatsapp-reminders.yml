@@ -1,0 +1,26 @@
+name: WhatsApp Daily Reminders
+
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 21:00 שעון ישראל קיץ (18:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: cd scripts && npm install
+
+      - name: Send reminders
+        run: node scripts/send-reminders.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GREEN_API_ID:             ${{ secrets.GREEN_API_ID }}
+          GREEN_API_TOKEN:          ${{ secrets.GREEN_API_TOKEN }}

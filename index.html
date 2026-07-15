@@ -405,6 +405,10 @@
       <select id="f-designer"></select>
     </div>
     <div class="form-group">
+      <label>תאריך</label>
+      <input type="date" id="f-date" style="direction:ltr;text-align:right">
+    </div>
+    <div class="form-group">
       <label>שם לקוח / פרויקט</label>
       <input type="text" id="f-client" placeholder="שם הלקוח">
     </div>
@@ -968,6 +972,7 @@ function openNew(designerId, startTime, dateStr) {
   modalDateStr = dateStr;
   document.getElementById("modal-title").textContent = "פגישה חדשה";
   document.getElementById("f-designer").value = designerId;
+  document.getElementById("f-date").value     = dateStr || dateKey();
   document.getElementById("f-client").value   = "";
   document.getElementById("f-phone").value    = "";
   setTime("f-start", startTime);
@@ -989,6 +994,7 @@ function openEdit(apt) {
   modalDateStr = apt.date;
   document.getElementById("modal-title").textContent = "עריכת פגישה";
   document.getElementById("f-designer").value = apt.designerId;
+  document.getElementById("f-date").value     = apt.date || "";
   document.getElementById("f-client").value   = apt.clientName || "";
   document.getElementById("f-phone").value    = apt.phone || "";
   setTime("f-start", apt.startTime);
@@ -1039,7 +1045,7 @@ async function saveApt() {
   const client = document.getElementById("f-client").value.trim();
   if (!client) { document.getElementById("f-client").focus(); return; }
   const data = {
-    date:       modalDateStr || dateKey(),
+    date:       document.getElementById("f-date").value || modalDateStr || dateKey(),
     designerId: document.getElementById("f-designer").value,
     clientName: client,
     phone:      document.getElementById("f-phone").value.trim(),

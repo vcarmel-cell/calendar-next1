@@ -277,6 +277,45 @@
     .btn-add-designer:hover { border-color: var(--gold); color: var(--gold); }
     .settings-note { font-size: .78rem; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 
+    /* ── TRASH ─────────────────────────────────────── */
+    .trash-section { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .trash-toggle-btn {
+      background: none; border: none; color: var(--muted); font-size: .88rem;
+      cursor: pointer; font-family: inherit; padding: 4px 0; width: 100%;
+      text-align: right; display: flex; align-items: center; gap: 6px;
+      transition: color .15s;
+    }
+    .trash-toggle-btn:hover { color: var(--primary); }
+    .trash-panel { margin-top: 10px; }
+    .trash-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+    .trash-tab {
+      flex: 1; padding: 7px 10px; font-size: .83rem; font-family: inherit;
+      border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
+      background: var(--bg); color: var(--muted); transition: all .15s;
+    }
+    .trash-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .trash-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 9px; border: 1px solid var(--border);
+      margin-bottom: 7px; background: var(--card); font-size: .88rem;
+    }
+    .trash-row .trash-info { flex: 1; }
+    .trash-row .trash-name { font-weight: 600; color: var(--text); }
+    .trash-row .trash-meta { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .trash-restore-btn {
+      padding: 5px 10px; background: #e8f5e9; color: #2e7d32;
+      border: 1px solid #c8e6c9; border-radius: 7px; font-size: .8rem;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .trash-restore-btn:hover { background: #c8e6c9; }
+    .trash-perm-btn {
+      padding: 5px 10px; background: #fdf0ee; color: #c0392b;
+      border: 1px solid #f5c6c0; border-radius: 7px; font-size: .8rem;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .trash-perm-btn:hover { background: #fad9d5; }
+    .trash-empty { text-align: center; color: var(--muted); padding: 18px; font-size: .88rem; }
+
     /* ── SEARCH RESULTS ────────────────────────────── */
     .search-result {
       display: flex; align-items: center; gap: 12px;
@@ -443,6 +482,19 @@
     <div class="modal-actions">
       <button class="btn-save" id="settings-save">שמירה</button>
     </div>
+    <div class="trash-section">
+      <button class="trash-toggle-btn" id="trash-toggle-btn" onclick="toggleTrash()">
+        <span id="trash-arrow">▸</span> פח מחזור
+      </button>
+      <div class="trash-panel" id="trash-panel" style="display:none">
+        <div class="trash-tabs">
+          <button class="trash-tab active" id="trash-tab-designers" onclick="showTrashTab('designers')">יומנים שנמחקו</button>
+          <button class="trash-tab" id="trash-tab-apts" onclick="showTrashTab('apts')">פגישות שנמחקו</button>
+        </div>
+        <div id="trash-designers-list"></div>
+        <div id="trash-apts-list" style="display:none"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -451,7 +503,7 @@ import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.16.0/
 import { getAuth, signInAnonymously, signOut, onAuthStateChanged }
                                 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import { getFirestore, collection, doc, query, where,
-         onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, getDoc }
+         onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, getDoc, getDocs }
                                 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 /* ═══════════════════════════════════════════════════
@@ -491,7 +543,8 @@ const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
 /* ─── State ─────────────────────────────────────── */
-let DESIGNERS     = [];
+let DESIGNERS         = [];
+let DELETED_DESIGNERS = [];
 let currentDate   = today();
 let activeFilter  = "all";
 let viewMode      = "day";   // "day" | "week"
@@ -657,8 +710,13 @@ function todayKey() { return dateKey(today()); }
 async function loadDesigners() {
   const ref = doc(db, "settings", "designers");
   const snap = await getDoc(ref);
-  if (snap.exists()) DESIGNERS = snap.data().list;
-  else { DESIGNERS = DEFAULT_DESIGNERS; await setDoc(ref, { list: DESIGNERS }); }
+  if (snap.exists()) {
+    DESIGNERS         = snap.data().list        || [];
+    DELETED_DESIGNERS = snap.data().deletedList || [];
+  } else {
+    DESIGNERS = DEFAULT_DESIGNERS; DELETED_DESIGNERS = [];
+    await setDoc(ref, { list: DESIGNERS, deletedList: [] });
+  }
 }
 
 /* ─── Time gutter ────────────────────────────────── */
@@ -934,9 +992,18 @@ function sendEmailNotification(data) {
 }
 
 async function deleteApt() {
-  if (!editingId || !confirm("למחוק את הפגישה?")) return;
-  try { await deleteDoc(doc(db, "appointments", editingId)); closeModal(); }
-  catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+  if (!editingId || !confirm("למחוק את הפגישה?\nניתן לשחזר אותה מהגדרות → פח מחזור.")) return;
+  try {
+    const aptRef  = doc(db, "appointments", editingId);
+    const aptSnap = await getDoc(aptRef);
+    if (aptSnap.exists()) {
+      await setDoc(doc(db, "deleted_appointments", editingId), {
+        ...aptSnap.data(), deletedAt: new Date().toISOString()
+      });
+      await deleteDoc(aptRef);
+    }
+    closeModal();
+  } catch (err) { alert("שגיאה במחיקה."); console.error(err); }
 }
 
 /* ─── Time selects ───────────────────────────────── */
@@ -1082,15 +1149,23 @@ function confirmAdminPwd() {
 /* ─── Settings modal ─────────────────────────────── */
 const PRESET_COLORS = ["#8B4513","#C4956A","#6B8E5A","#A0522D","#CD853F","#8B7355","#C0622A","#7D9B6B"];
 
-function openSettings()  { renderDesignersList(); document.getElementById("settings-overlay").classList.add("open"); }
+function openSettings()  {
+  renderDesignersList();
+  document.getElementById("trash-panel").style.display = "none";
+  document.getElementById("trash-arrow").textContent = "▸";
+  document.getElementById("settings-overlay").classList.add("open");
+}
 function closeSettings() { document.getElementById("settings-overlay").classList.remove("open"); }
 
 function renderDesignersList() {
   const list = document.getElementById("designers-list");
   list.innerHTML = "";
-  const draft = DESIGNERS.map(d => ({ ...d }));
+  const draft = {
+    active:  DESIGNERS.map(d => ({ ...d })),
+    deleted: DELETED_DESIGNERS.map(d => ({ ...d }))
+  };
   list.dataset.draft = JSON.stringify(draft);
-  draft.forEach((d, i) => appendDesignerRow(list, d, i));
+  draft.active.forEach((d, i) => appendDesignerRow(list, d, i));
 }
 
 function appendDesignerRow(list, d, i) {
@@ -1106,9 +1181,14 @@ function appendDesignerRow(list, d, i) {
   emailInput.addEventListener("input", e => updateDraft(list, i, "email", e.target.value));
   const removeBtn = document.createElement("button"); removeBtn.className = "btn-remove-designer"; removeBtn.innerHTML = "×";
   removeBtn.addEventListener("click", () => {
-    let draft = JSON.parse(list.dataset.draft); draft.splice(i, 1);
-    list.dataset.draft = JSON.stringify(draft); list.innerHTML = "";
-    draft.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
+    let draft = JSON.parse(list.dataset.draft);
+    const removed = draft.active.splice(i, 1)[0];
+    removed.deletedAt = new Date().toISOString();
+    draft.deleted.push(removed);
+    list.dataset.draft = JSON.stringify(draft);
+    list.innerHTML = "";
+    draft.active.forEach((dd, ii) => appendDesignerRow(list, dd, ii));
+    renderTrashDesigners();
   });
   const nameWrap = document.createElement("div");
   nameWrap.style.cssText = "flex:1;display:flex;flex-direction:column;gap:0";
@@ -1118,25 +1198,146 @@ function appendDesignerRow(list, d, i) {
 }
 
 function updateDraft(list, i, key, value) {
-  const draft = JSON.parse(list.dataset.draft); draft[i][key] = value; list.dataset.draft = JSON.stringify(draft);
+  const draft = JSON.parse(list.dataset.draft); draft.active[i][key] = value; list.dataset.draft = JSON.stringify(draft);
 }
 
 function addDesignerRow() {
   const list  = document.getElementById("designers-list");
   const draft = JSON.parse(list.dataset.draft);
-  const newD  = { id: String(Date.now()), name: "", color: PRESET_COLORS[draft.length % PRESET_COLORS.length] };
-  draft.push(newD); list.dataset.draft = JSON.stringify(draft);
-  appendDesignerRow(list, newD, draft.length - 1);
+  const newD  = { id: String(Date.now()), name: "", color: PRESET_COLORS[draft.active.length % PRESET_COLORS.length] };
+  draft.active.push(newD); list.dataset.draft = JSON.stringify(draft);
+  appendDesignerRow(list, newD, draft.active.length - 1);
   setTimeout(() => list.lastElementChild?.querySelector("input[type=text]")?.focus(), 50);
 }
 
-async function saveSettings() {
+/* ─── Trash / Recycle bin ────────────────────────── */
+window.toggleTrash = function() {
+  const panel = document.getElementById("trash-panel");
+  const arrow = document.getElementById("trash-arrow");
+  const open  = panel.style.display === "none";
+  panel.style.display = open ? "" : "none";
+  arrow.textContent   = open ? "▾" : "▸";
+  if (open) { renderTrashDesigners(); }
+};
+
+window.showTrashTab = function(tab) {
+  document.getElementById("trash-designers-list").style.display = tab === "designers" ? "" : "none";
+  document.getElementById("trash-apts-list").style.display      = tab === "apts"      ? "" : "none";
+  document.getElementById("trash-tab-designers").classList.toggle("active", tab === "designers");
+  document.getElementById("trash-tab-apts").classList.toggle("active", tab === "apts");
+  if (tab === "apts") loadTrashApts();
+};
+
+function renderTrashDesigners() {
   const list  = document.getElementById("designers-list");
-  const draft = JSON.parse(list.dataset.draft).filter(d => d.name.trim() !== "");
-  if (draft.length === 0) { alert("יש להגדיר לפחות מעצבת אחת."); return; }
+  const draft = JSON.parse(list.dataset.draft || '{"active":[],"deleted":[]}');
+  const el    = document.getElementById("trash-designers-list");
+  if (!el) return;
+  if (draft.deleted.length === 0) {
+    el.innerHTML = `<div class="trash-empty">אין יומנים שנמחקו</div>`; return;
+  }
+  el.innerHTML = "";
+  draft.deleted.forEach((d, i) => {
+    const row = document.createElement("div"); row.className = "trash-row";
+    const dot = `<div class="color-dot" style="background:${d.color};flex-shrink:0"></div>`;
+    const deletedDate = d.deletedAt ? new Date(d.deletedAt).toLocaleDateString("he-IL") : "";
+    row.innerHTML = `${dot}<div class="trash-info"><div class="trash-name">${d.name}</div>${deletedDate ? `<div class="trash-meta">נמחק: ${deletedDate}</div>` : ""}</div>
+      <button class="trash-restore-btn" onclick="restoreDesigner(${i})">שחזור</button>
+      <button class="trash-perm-btn" onclick="permanentDeleteDesigner(${i})">מחיקה</button>`;
+    el.appendChild(row);
+  });
+}
+
+window.restoreDesigner = function(i) {
+  const list  = document.getElementById("designers-list");
+  const draft = JSON.parse(list.dataset.draft);
+  const restored = draft.deleted.splice(i, 1)[0];
+  delete restored.deletedAt;
+  draft.active.push(restored);
+  list.dataset.draft = JSON.stringify(draft);
+  list.innerHTML = "";
+  draft.active.forEach((d, ii) => appendDesignerRow(list, d, ii));
+  renderTrashDesigners();
+};
+
+window.permanentDeleteDesigner = function(i) {
+  if (!confirm("למחוק את היומן לצמיתות? לא ניתן לשחזר.")) return;
+  const list  = document.getElementById("designers-list");
+  const draft = JSON.parse(list.dataset.draft);
+  draft.deleted.splice(i, 1);
+  list.dataset.draft = JSON.stringify(draft);
+  renderTrashDesigners();
+};
+
+async function loadTrashApts() {
+  const el = document.getElementById("trash-apts-list");
+  el.innerHTML = `<div class="trash-empty">טוען...</div>`;
   try {
-    await setDoc(doc(db, "settings", "designers"), { list: draft });
-    DESIGNERS = draft; activeFilter = "all";
+    const snap = await getDocs(collection(db, "deleted_appointments"));
+    const apts = [];
+    snap.forEach(d => apts.push({ id: d.id, ...d.data() }));
+    apts.sort((a, b) => (b.deletedAt || "").localeCompare(a.deletedAt || ""));
+    renderTrashApts(apts);
+  } catch (err) { el.innerHTML = `<div class="trash-empty">שגיאה בטעינה</div>`; console.error(err); }
+}
+
+function renderTrashApts(apts) {
+  const el = document.getElementById("trash-apts-list");
+  if (apts.length === 0) { el.innerHTML = `<div class="trash-empty">אין פגישות שנמחקו</div>`; return; }
+  const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  el.innerHTML = "";
+  apts.forEach(apt => {
+    const designer = DESIGNERS.find(d => d.id === apt.designerId) ||
+                     DELETED_DESIGNERS.find(d => d.id === apt.designerId);
+    const parts    = (apt.date || "").split("-");
+    const dateStr  = parts.length === 3
+      ? `${+parts[2]} ${MONTHS[+parts[1]-1]} ${parts[0]}`
+      : apt.date || "";
+    const deletedDate = apt.deletedAt ? new Date(apt.deletedAt).toLocaleDateString("he-IL") : "";
+    const row = document.createElement("div"); row.className = "trash-row";
+    row.innerHTML = `
+      <div class="color-dot" style="background:${designer?.color||"#ccc"};flex-shrink:0"></div>
+      <div class="trash-info">
+        <div class="trash-name">${apt.clientName || ""}</div>
+        <div class="trash-meta">${dateStr} · ${apt.startTime||""}–${apt.endTime||""} · ${designer?.name||""}</div>
+        ${deletedDate ? `<div class="trash-meta">נמחק: ${deletedDate}</div>` : ""}
+      </div>
+      <button class="trash-restore-btn" onclick="restoreApt('${apt.id}')">שחזור</button>
+      <button class="trash-perm-btn" onclick="permanentDeleteApt('${apt.id}')">מחיקה</button>`;
+    el.appendChild(row);
+  });
+}
+
+window.restoreApt = async function(id) {
+  try {
+    const ref  = doc(db, "deleted_appointments", id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+    const data = { ...snap.data() };
+    delete data.deletedAt;
+    await setDoc(doc(db, "appointments", id), data);
+    await deleteDoc(ref);
+    await loadTrashApts();
+  } catch (err) { alert("שגיאה בשחזור."); console.error(err); }
+};
+
+window.permanentDeleteApt = async function(id) {
+  if (!confirm("למחוק את הפגישה לצמיתות? לא ניתן לשחזר.")) return;
+  try {
+    await deleteDoc(doc(db, "deleted_appointments", id));
+    await loadTrashApts();
+  } catch (err) { alert("שגיאה במחיקה."); console.error(err); }
+};
+
+async function saveSettings() {
+  const list    = document.getElementById("designers-list");
+  const draft   = JSON.parse(list.dataset.draft);
+  const active  = draft.active.filter(d => d.name.trim() !== "");
+  if (active.length === 0) { alert("יש להגדיר לפחות מעצבת אחת."); return; }
+  try {
+    await setDoc(doc(db, "settings", "designers"), { list: active, deletedList: draft.deleted });
+    DESIGNERS = active; DELETED_DESIGNERS = draft.deleted;
+    activeFilter = "all";
     document.getElementById("designer-filter").value = "all";
     buildFilterSelect(); buildModalDesigners();
     if (viewMode === "day") { buildDayGrid(); renderApts(lastApts); }

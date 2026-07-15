@@ -57,7 +57,7 @@ async function main() {
     const isInstall = designer?.name?.includes('התקנות');
 
     const msg = isInstall
-      ? `שלום ${apt.clientName} :)\n\nתזכורת להתקנה שלך מחר:\n* ${dateStr}\n* שעה: ${apt.startTime} - ${apt.endTime}${apt.address ? `\n* כתובת: ${apt.address}` : ''}\n\nטלפון לשינויים: 050-7141720\nWaze: https://waze.com/ul/hsv8s54crr\n\nאביה Kitchen`
+      ? `שלום ${apt.clientName} :)\n\nתזכורת להתקנה שלך מחר:\n* ${dateStr}\n* שעה: ${apt.startTime} - ${apt.endTime}${apt.address ? `\n* כתובת: ${apt.address}` : ''}\n\nטלפון לשינויים: 050-7141720\n\nאביה Kitchen`
       : `שלום ${apt.clientName} :)\n\nתזכורת לפגישה שלך מחר:\n* ${dateStr}\n* שעה: ${apt.startTime} - ${apt.endTime}\n* עם ${designer?.name || ''}\n\nטלפון לשינויים: 050-7141720\nWaze: https://waze.com/ul/hsv8s54crr\n\nאביה Kitchen`;
 
     try {

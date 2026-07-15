@@ -783,6 +783,7 @@ function buildDayGrid() {
   visible.forEach(d => {
     const col = document.createElement("div");
     col.className = "designer-col"; col.dataset.id = d.id;
+    if (d.name?.includes("התקנות")) col.style.background = "#EDE0D0";
     const hdr = document.createElement("div");
     hdr.className = "designer-header"; hdr.textContent = d.name;
     hdr.style.borderColor = d.color; hdr.style.color = d.color;

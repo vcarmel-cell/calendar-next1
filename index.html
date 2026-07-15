@@ -382,6 +382,7 @@
     </div>
     <button class="btn-icon" id="btn-search" title="חיפוש לקוח">🔍</button>
     <button class="btn-icon" id="btn-settings" title="הגדרות">⚙️</button>
+    <button class="btn-logout" id="btn-backup" title="הורד גיבוי">⬇</button>
     <button class="btn-logout" id="btn-logout">יציאה</button>
   </div>
 
@@ -657,6 +658,7 @@ function bindEvents() {
   document.getElementById("search-input").addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
   // Admin password modal
   document.getElementById("btn-settings").addEventListener("click", openAdminPrompt);
+  document.getElementById("btn-backup").addEventListener("click", downloadBackup);
   document.getElementById("admin-pwd-confirm").addEventListener("click", confirmAdminPwd);
   document.getElementById("admin-pwd-cancel").addEventListener("click", closeAdminPrompt);
   document.getElementById("admin-pwd-input").addEventListener("keydown", e => { if (e.key === "Enter") confirmAdminPwd(); });

@@ -1,9 +1,7 @@
 name: Firestore Daily Backup
 
 on:
-  schedule:
-    - cron: '0 22 * * *'   # כל לילה בחצות שעון ישראל (22:00 UTC)
-  workflow_dispatch:         # אפשרות הרצה ידנית
+  workflow_dispatch:         # הרצה ידנית בלבד
 
 jobs:
   backup:
